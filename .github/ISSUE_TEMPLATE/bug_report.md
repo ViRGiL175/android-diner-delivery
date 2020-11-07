@@ -2,7 +2,7 @@
 name: Bug
 about: 'Для описания и фиксации багов и проблем '
 title: ''
-labels: type: bug
+labels: 'type: bug'
 assignees: ''
 
 ---
