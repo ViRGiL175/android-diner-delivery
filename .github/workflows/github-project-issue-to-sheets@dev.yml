@@ -18,4 +18,4 @@ jobs:
           with:
             google-api-service-account-credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_DATA }}
             document-id: '1hnSWG_3kwD2m9j3dLP6jV38U5F7HBhnar0KYWwGl3Ug'
-            sheet-name: 'GitHub Issues'
+            sheet-name: 'GitHub Export Data'
