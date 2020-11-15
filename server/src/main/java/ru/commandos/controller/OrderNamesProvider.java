@@ -21,12 +21,12 @@ public class OrderNamesProvider {
 
     public OrderNamesProvider() {
         orderItems = Collections.unmodifiableMap(new HashMap<String, Feature[]>() {{
-            put("Vodka", new Feature[]{Feature.SHOULD_BE_COLD, Feature.LiQUID});
-            put("Cola", new Feature[]{Feature.LiQUID});
-            put("Tea", new Feature[]{Feature.SHOULD_BE_HOT, Feature.LiQUID});
-            put("Coffee", new Feature[]{Feature.SHOULD_BE_HOT, Feature.LiQUID});
-            put("Beer", new Feature[]{Feature.SHOULD_BE_COLD, Feature.LiQUID});
-            put("Juice", new Feature[]{Feature.LiQUID});
+            put("Vodka", new Feature[]{Feature.SHOULD_BE_COLD, Feature.LIQUID});
+            put("Cola", new Feature[]{Feature.LIQUID});
+            put("Tea", new Feature[]{Feature.SHOULD_BE_HOT, Feature.LIQUID});
+            put("Coffee", new Feature[]{Feature.SHOULD_BE_HOT, Feature.LIQUID});
+            put("Beer", new Feature[]{Feature.SHOULD_BE_COLD, Feature.LIQUID});
+            put("Juice", new Feature[]{Feature.LIQUID});
             put("Hot Dog", new Feature[]{Feature.SHOULD_BE_HOT});
             put("Cookie", new Feature[]{});
             put("T-Bone", new Feature[]{Feature.SHOULD_BE_HOT});
@@ -39,7 +39,7 @@ public class OrderNamesProvider {
     public Map.Entry<String, Feature[]> getRandom(boolean isDrink) {
         List<Map.Entry<String, Feature[]>> collect = orderItems.entrySet().stream()
                 .filter(stringEntry -> isDrink == Arrays.asList(stringEntry.getValue())
-                        .contains(Feature.LiQUID))
+                        .contains(Feature.LIQUID))
                 .collect(Collectors.toList());
         Collections.shuffle(collect);
         return collect.stream().findFirst().orElse(
