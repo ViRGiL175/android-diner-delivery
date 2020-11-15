@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
+import ru.commandos.model.Feature;
 import ru.commandos.model.Item;
 import ru.commandos.model.Order;
 import ru.commandos.model.OrderDelivery;
@@ -56,14 +57,15 @@ public class DeliveryService implements DisposableBean {
 
     public void setupOrdersGenerating() {
         Observable.interval(0, 10, TimeUnit.SECONDS)
-                .observeOn(RxJavaPlugins.createComputationScheduler(Thread::new))
                 .doOnNext(aLong -> {
                     Random random = new Random();
                     Order order = new Order(UUID.randomUUID());
                     int itemsCount = random.nextInt(5) + 1;
                     for (int i = 0; i < itemsCount; i++) {
-                        Item item = new Item(orderNamesProvider.getRandom(random.nextBoolean()),
-                                random.nextFloat() * 1000 + 200);
+                        Map.Entry<String, Feature[]> rawItem = orderNamesProvider.getRandom(
+                                random.nextBoolean());
+                        Item item = new Item(rawItem.getKey(),
+                                random.nextFloat() * 1000 + 200, rawItem.getValue());
                         order.items.add(item);
                     }
                     incomingOrders.add(order);
