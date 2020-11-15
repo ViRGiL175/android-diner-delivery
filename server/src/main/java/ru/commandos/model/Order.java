@@ -2,8 +2,14 @@ package ru.commandos.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Order {
 
-    public List<Item> items = new ArrayList<>();
+    public final UUID uuid;
+    public final List<Item> items = new ArrayList<>();
+
+    public Order(UUID uuid) {
+        this.uuid = uuid;
+    }
 }
