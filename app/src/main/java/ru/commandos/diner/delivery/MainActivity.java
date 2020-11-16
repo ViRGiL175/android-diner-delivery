@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             else features += ", должно быть холодным";
         if (h.contains(Feature.SHOULD_BE_HOT))
             if (features.equals("")) features = "";
-            else features += " , должно быть горячим";
+            else features += ", должно быть горячим";
         features += "!";
         return features;
     }
