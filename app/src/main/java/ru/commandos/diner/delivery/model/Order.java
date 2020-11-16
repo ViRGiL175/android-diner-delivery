@@ -9,12 +9,12 @@ import java.util.UUID;
 
 public class Order {
 
-    @SerializedName("uuid")
-    @Expose
+//    @SerializedName("uuid")
+//    @Expose
     public final UUID uuid;
 
-    @SerializedName("items")
-    @Expose
+//    @SerializedName("items")
+//    @Expose
     public final List<Item> items = new ArrayList<>();
 
     public Order(UUID uuid) {

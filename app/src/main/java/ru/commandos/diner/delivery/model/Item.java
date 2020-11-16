@@ -5,16 +5,16 @@ import com.google.gson.annotations.SerializedName;
 
 public class Item {
 
-    @SerializedName("name")
-    @Expose
+//    @SerializedName("name")
+//    @Expose
     public String name;
 
-    @SerializedName("mass")
-    @Expose
+//    @SerializedName("mass")
+//    @Expose
     public float mass;
 
-    @SerializedName("features")
-    @Expose
+//    @SerializedName("features")
+//    @Expose
     public Feature[] features;
 
     public Item(String name, float mass, Feature[] features) {

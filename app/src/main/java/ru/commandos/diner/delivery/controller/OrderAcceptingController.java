@@ -2,27 +2,26 @@ package ru.commandos.diner.delivery.controller;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import ru.commandos.diner.delivery.model.Order;
 
 public class OrderAcceptingController {
 
-    private UUID courierUuid;
     private final ArrayList<Order> acceptOrder = new ArrayList<>();
+    private final CompositeDisposable compositeDisposable;
+    private UUID courierUuid;
     private Order acceptableOrder = null;
+    private JSONPlaceHolderApi jsonApi = CourierService.getInstance()
+            .getJSONApi();
 
-    public OrderAcceptingController(String courierUuid) {
+    public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable) {
         this.courierUuid = UUID.fromString(courierUuid);
+        this.compositeDisposable = compositeDisposable;
     }
 
     public ArrayList<Order> getAcceptOrderList() {
@@ -43,23 +42,13 @@ public class OrderAcceptingController {
     }
 
     public void check() {
-        Observable.interval(1, 5, TimeUnit.SECONDS)
-                .observeOn(RxJavaPlugins.createComputationScheduler(Thread::new)).doOnNext(v -> {
-            CourierServise.getInstance()
-                    .getJSONApi()
-                    .getOrderWithID(courierUuid.toString())
-                    .enqueue(new Callback<Order>() {
-                        @Override
-                        public void onResponse(@NonNull Call<Order> call, @NonNull Response<Order> response) {
-                            acceptableOrder = response.body();
-                            Log.i("ORDERING", acceptableOrder.toString());
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
-                            t.printStackTrace();
-                        }
-                    });
-        }).subscribe();
+        Log.i("ORDERING", "Checking!");
+        compositeDisposable.add(Observable.interval(1, 5, TimeUnit.SECONDS)
+                .subscribe(aLong -> {
+                    Log.i("ORDERING", "On NEXT!");
+                    jsonApi.getOrderWithID(courierUuid.toString())
+                            .subscribe(order -> Log.i("ORDERING", order.uuid.toString()),
+                                    Throwable::printStackTrace);
+                }, Throwable::printStackTrace));
     }
 }
