@@ -16,8 +16,7 @@ public class OrderAcceptingController {
     private final CompositeDisposable compositeDisposable;
     private UUID courierUuid;
     private Order acceptableOrder = null;
-    private JSONPlaceHolderApi jsonApi = CourierService.getInstance()
-            .getJSONApi();
+    private ServerApi jsonApi = CourierService.getInstance().getJSONApi();
 
     public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable) {
         this.courierUuid = UUID.fromString(courierUuid);
@@ -45,10 +44,10 @@ public class OrderAcceptingController {
         Log.i("ORDERING", "Checking!");
         compositeDisposable.add(Observable.interval(1, 5, TimeUnit.SECONDS)
                 .subscribe(aLong -> {
-                    Log.i("ORDERING", "On NEXT!");
-                    jsonApi.getOrderWithID(courierUuid.toString())
-                            .subscribe(order -> Log.i("ORDERING", order.uuid.toString()),
-                                    Throwable::printStackTrace);
+                    if (acceptableOrder == null) {
+                        acceptableOrder = jsonApi.getOrderWithID(courierUuid.toString());
+                        Log.i("ORDERING", "On NEXT!: " + acceptableOrder);
+                    }
                 }, Throwable::printStackTrace));
     }
 }

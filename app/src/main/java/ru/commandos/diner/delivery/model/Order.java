@@ -15,10 +15,11 @@ public class Order {
 
 //    @SerializedName("items")
 //    @Expose
-    public final List<Item> items = new ArrayList<>();
+    public List<Item> items = new ArrayList<>();
 
-    public Order(UUID uuid) {
+    public Order(UUID uuid, List<Item> items) {
         this.uuid = uuid;
+        this.items = items;
     }
 
     public float getMass() {
