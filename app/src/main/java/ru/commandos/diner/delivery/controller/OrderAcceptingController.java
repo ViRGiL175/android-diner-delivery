@@ -17,7 +17,7 @@ public class OrderAcceptingController {
         return acceptableOrder;
     }
 
-    public void acceptAcceptableOrder() {
+    public void acceptAcceptableOrder(Order order) {
     }
 
     public void denyAcceptableOrder() {
