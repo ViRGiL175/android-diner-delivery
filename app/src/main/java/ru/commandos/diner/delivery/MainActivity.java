@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerViewAcceptedOrders.setAdapter(adapter);
 
         createNotificationChannelDelivery();
+
+        binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
+        binding.textViewCurrentFood.setText(FoodGetter.getActualStringFood(currentOrder));
     }
 
     @Override
@@ -73,14 +76,6 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        StringBuilder food = new StringBuilder(currentOrder.items.get(0).name);
-        for (int i = 1; i < currentOrder.items.size(); i++) {
-            food.append(", ");
-            String c = currentOrder.items.get(i).name;
-            c = c.toLowerCase();
-            food.append(c);
-        }
-
         Intent resultIntent = new Intent(this, MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -89,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this, "CHANNEL_ID")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("У вас новый заказ!")
-                        .setContentText(food)
+                        .setContentText(FoodGetter.getActualStringFood(currentOrder))
                         .setContentIntent(resultPendingIntent);
 
         Notification notification = builder.build();
@@ -109,4 +104,6 @@ public class MainActivity extends AppCompatActivity {
         channel.enableVibration(false);
         notificationManager.createNotificationChannel(channel);
     }
+
+
 }

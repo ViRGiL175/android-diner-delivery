@@ -38,15 +38,6 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
         Order order = orders.get(position);
         String uuid = order.uuid.toString();
 
-        StringBuilder food = new StringBuilder(order.items.get(0).name);
-        for (int i = 1; i < order.items.size(); i++)
-        {
-            food.append(", ");
-            String c = order.items.get(i).name;
-            c = c.toLowerCase();
-            food.append(c);
-        }
-
         String features = "";
         HashSet<Feature> h = new HashSet<>(3);
         for (int i = 0; i < order.items.size(); i++)
@@ -60,7 +51,7 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
             else features += " , должно быть горячим";
         features += "!";
 
-        holder.binding.textViewFood.setText(food.toString().toString());
+        holder.binding.textViewFood.setText(FoodGetter.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);
         holder.binding.textViewFeatures.setText(features);
     }
