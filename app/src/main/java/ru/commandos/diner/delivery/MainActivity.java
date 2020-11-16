@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import ru.commandos.diner.delivery.controller.OrderAcceptingController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Item;
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     public ArrayList<Order> orders = new ArrayList<>();
     public Order currentOrder;
+
+    public OrderAcceptingController controller = new OrderAcceptingController();
 
     {
         Order order = new Order(UUID.randomUUID());
@@ -64,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
         binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
+
+        binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
+        binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
     }
 
     @Override
@@ -114,5 +121,21 @@ public class MainActivity extends AppCompatActivity {
             food.append(c);
         }
         return String.valueOf(food);
+    }
+
+    public class ButtonAcceptOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            controller.acceptAcceptableOrder(currentOrder);
+        }
+    }
+
+    public class ButtonDenyOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            controller.denyAcceptableOrder();
+        }
     }
 }
