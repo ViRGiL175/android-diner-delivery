@@ -18,6 +18,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
 
 import ru.commandos.diner.delivery.controller.OrderAcceptingController;
@@ -71,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
+
+        binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+        binding.textViewCurrentMass.setText(getActualStringMass(currentOrder));
     }
 
     @Override
@@ -112,15 +117,39 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public static String getActualStringFood(Order currentOrder) {
-        StringBuilder food = new StringBuilder(currentOrder.items.get(0).name);
-        for (int i = 1; i < currentOrder.items.size(); i++) {
+    public static String getActualStringFood(Order order) {
+        StringBuilder food = new StringBuilder(order.items.get(0).name);
+        for (int i = 1; i < order.items.size(); i++) {
             food.append(", ");
-            String c = currentOrder.items.get(i).name;
+            String c = order.items.get(i).name;
             c = c.toLowerCase();
             food.append(c);
         }
         return String.valueOf(food);
+    }
+
+    public static String getActualStringFeatures(Order order) {
+        String features = "";
+        HashSet<Feature> h = new HashSet<>(3);
+        for (int i = 0; i < order.items.size(); i++)
+            Collections.addAll(h, order.items.get(i).features);
+        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
+        if (h.contains(Feature.SHOULD_BE_COLD))
+            if (features.equals("")) features = "Должно быть холодным";
+            else features += ", должно быть холодным";
+        if (h.contains(Feature.SHOULD_BE_HOT))
+            if (features.equals("")) features = "";
+            else features += " , должно быть горячим";
+        features += "!";
+        return features;
+    }
+
+    public static String getActualStringMass(Order order) {
+        float m = 0;
+        for (int i = 0; i < order.items.size(); i++) {
+            m += order.items.get(i).mass;
+        }
+        return String.valueOf(m);
     }
 
     public class ButtonAcceptOnClickListener implements View.OnClickListener {

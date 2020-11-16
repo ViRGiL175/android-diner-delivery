@@ -38,22 +38,10 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
         Order order = orders.get(position);
         String uuid = order.uuid.toString();
 
-        String features = "";
-        HashSet<Feature> h = new HashSet<>(3);
-        for (int i = 0; i < order.items.size(); i++)
-            Collections.addAll(h, order.items.get(i).features);
-        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
-        if (h.contains(Feature.SHOULD_BE_COLD))
-            if (features.equals("")) features = "Должно быть холодным";
-            else features += " , должно быть холодным";
-        if (h.contains(Feature.SHOULD_BE_HOT))
-            if (features.equals("")) features = "";
-            else features += " , должно быть горячим";
-        features += "!";
-
         holder.binding.textViewFood.setText(MainActivity.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);
-        holder.binding.textViewFeatures.setText(features);
+        holder.binding.textViewFeatures.setText(MainActivity.getActualStringFeatures(order));
+        holder.binding.textViewMass.setText(MainActivity.getActualStringMass(order));
     }
 
     @Override
