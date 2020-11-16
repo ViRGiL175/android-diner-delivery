@@ -51,7 +51,7 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
             else features += " , должно быть горячим";
         features += "!";
 
-        holder.binding.textViewFood.setText(FoodGetter.getActualStringFood(order));
+        holder.binding.textViewFood.setText(MainActivity.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);
         holder.binding.textViewFeatures.setText(features);
     }

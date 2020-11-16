@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannelDelivery();
 
         binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
-        binding.textViewCurrentFood.setText(FoodGetter.getActualStringFood(currentOrder));
+        binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this, "CHANNEL_ID")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("У вас новый заказ!")
-                        .setContentText(FoodGetter.getActualStringFood(currentOrder))
+                        .setContentText(getActualStringFood(currentOrder))
                         .setContentIntent(resultPendingIntent);
 
         Notification notification = builder.build();
@@ -105,5 +105,14 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.createNotificationChannel(channel);
     }
 
-
+    public static String getActualStringFood(Order currentOrder) {
+        StringBuilder food = new StringBuilder(currentOrder.items.get(0).name);
+        for (int i = 1; i < currentOrder.items.size(); i++) {
+            food.append(", ");
+            String c = currentOrder.items.get(i).name;
+            c = c.toLowerCase();
+            food.append(c);
+        }
+        return String.valueOf(food);
+    }
 }
