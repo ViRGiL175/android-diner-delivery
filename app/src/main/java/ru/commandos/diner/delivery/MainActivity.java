@@ -59,5 +59,54 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AcceptedOrdersAdapter(this, orders);
         binding.recyclerViewAcceptedOrders.setAdapter(adapter);
+
+        createNotificationChannelDelivery();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        showNotificationAboutCurrentOrder();
+    }
+
+    public void showNotificationAboutCurrentOrder() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        StringBuilder food = new StringBuilder(currentOrder.items.get(0).name);
+        for (int i = 1; i < currentOrder.items.size(); i++) {
+            food.append(", ");
+            String c = currentOrder.items.get(i).name;
+            c = c.toLowerCase();
+            food.append(c);
+        }
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, "CHANNEL_ID")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("У вас новый заказ!")
+                        .setContentText(food)
+                        .setContentIntent(resultPendingIntent);
+
+        Notification notification = builder.build();
+        notificationManager.notify(1, notification);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void createNotificationChannelDelivery() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel channel = new NotificationChannel("CHANNEL_ID", "Delivery",
+                NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("Notifications about orders");
+        channel.enableLights(true);
+        channel.setLightColor(Color.RED);
+        channel.enableVibration(false);
+        notificationManager.createNotificationChannel(channel);
     }
 }
