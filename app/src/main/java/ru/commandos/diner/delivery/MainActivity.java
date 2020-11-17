@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
 
         binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
-        binding.textViewCurrentMass.setText(getActualStringMass(currentOrder));
+        binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this, "CHANNEL_ID")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("У вас новый заказ!")
-                        .setContentText(getActualStringFood(currentOrder))
+                        .setContentText(getActualStringFeatures(currentOrder) + " " + getActualStringMass(currentOrder) + " кг")
                         .setContentIntent(resultPendingIntent);
 
         Notification notification = builder.build();

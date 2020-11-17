@@ -1,5 +1,6 @@
 package ru.commandos.diner.delivery;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -41,7 +42,7 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
         holder.binding.textViewFood.setText(MainActivity.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);
         holder.binding.textViewFeatures.setText(MainActivity.getActualStringFeatures(order));
-        holder.binding.textViewMass.setText(MainActivity.getActualStringMass(order));
+        holder.binding.textViewMass.setText(MainActivity.getActualStringMass(order) + " кг");
     }
 
     @Override
