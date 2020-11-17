@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import ru.commandos.diner.delivery.MainActivity;
 import ru.commandos.diner.delivery.model.Order;
 
 public class OrderAcceptingController {
@@ -17,10 +18,12 @@ public class OrderAcceptingController {
     private UUID courierUuid;
     private Order acceptableOrder = null;
     private ServerApi jsonApi = CourierService.getInstance().getJSONApi();
+    private MainActivity activity;
 
-    public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable) {
+    public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable, MainActivity activity) {
         this.courierUuid = UUID.fromString(courierUuid);
         this.compositeDisposable = compositeDisposable;
+        this.activity = activity;
     }
 
     public ArrayList<Order> getAcceptOrderList() {
@@ -34,10 +37,12 @@ public class OrderAcceptingController {
     public void acceptAcceptableOrder() {
         acceptOrder.add(acceptableOrder);
         acceptableOrder = null;
+        activity.updateView();
     }
 
     public void denyAcceptableOrder() {
         acceptableOrder = null;
+        activity.updateView();
     }
 
     public void check() {
@@ -47,6 +52,7 @@ public class OrderAcceptingController {
                     if (acceptableOrder == null) {
                         acceptableOrder = jsonApi.getOrderWithID(courierUuid.toString());
                         Log.i("ORDERING", "On NEXT!: " + acceptableOrder);
+                        activity.updateView();
                     }
                 }, Throwable::printStackTrace));
     }

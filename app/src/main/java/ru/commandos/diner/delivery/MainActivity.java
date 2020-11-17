@@ -50,23 +50,20 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        controller = new OrderAcceptingController("df307a18-1b66-432a-8011-39b68397d000", compositeDisposable);
+        controller = new OrderAcceptingController("df307a18-1b66-432a-8011-39b68397d000", compositeDisposable, this);
         controller.check();
 
         binding.recyclerViewAcceptedOrders.setHasFixedSize(true);
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
 
-        for(int i=0;i<orders.size();i++) {
-            if(orders.get(i) == null) {
-                orders.remove(i);
-            }
-        }
+//        for(int i=0;i<orders.size();i++) {
+//            if(orders.get(i) == null) {
+//                orders.remove(i);
+//            }
+//        }
 
-        if(orders.size()>0)
-        {
-            adapter = new AcceptedOrdersAdapter(this, orders);
-            binding.recyclerViewAcceptedOrders.setAdapter(adapter);
-        }
+        adapter = new AcceptedOrdersAdapter(this, orders);
+        binding.recyclerViewAcceptedOrders.setAdapter(adapter);
 
         binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
@@ -75,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         updateView();
 
+        makeButtonsDisabled();
     }
 
     @Override
@@ -93,28 +91,52 @@ public class MainActivity extends AppCompatActivity {
     public void updateView() {
         currentOrder = controller.getAcceptableOrder();
         if (currentOrder != null) {
-            binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
-            binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
-            binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
-            binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
+            String mass = getActualStringMass(currentOrder) + " кг";
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
+                    binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
+                    binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+                    binding.textViewCurrentMass.setText(mass);
+                }
+            });
         }
 
         orders = controller.getAcceptOrderList();
         if (orders == null) {
             orders = new ArrayList<>();
         }
+
 //        adapter.notifyDataSetChanged();
-        for(int i=0;i<orders.size();i++) {
-            if(orders.get(i) == null) {
-                orders.remove(i);
-            }
-        }
+
+//        for(int i=0;i<orders.size();i++) {
+//            if(orders.get(i) == null) {
+//                orders.remove(i);
+//            }
+//        }
 
         if(orders.size()>0)
         {
             AcceptedOrdersAdapter adapter1 = new AcceptedOrdersAdapter(this, orders);
-            binding.recyclerViewAcceptedOrders.setAdapter(adapter1);
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    binding.recyclerViewAcceptedOrders.setAdapter(adapter1);
+                }
+            });
         }
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                binding.buttonDeny.setEnabled(true);
+                binding.buttonAccept.setEnabled(true);
+            }
+        });
     }
 
     public void showNotificationAboutCurrentOrder() {
@@ -191,8 +213,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            controller.acceptAcceptableOrder();
-            updateView();
+            if(controller.getAcceptableOrder()!=null) {
+                controller.acceptAcceptableOrder();
+                updateView();
+            }
+            makeButtonsDisabled();
         }
     }
 
@@ -202,6 +227,13 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             controller.denyAcceptableOrder();
             updateView();
+            makeButtonsDisabled();
         }
     }
+
+    public void makeButtonsDisabled() {
+        binding.buttonAccept.setEnabled(false);
+        binding.buttonDeny.setEnabled(false);
+    }
+
 }
