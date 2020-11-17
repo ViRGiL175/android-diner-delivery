@@ -19,11 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.rxjava3.core.Observable;
 import ru.commandos.diner.delivery.controller.OrderAcceptingController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
 import ru.commandos.diner.delivery.model.Feature;
@@ -37,12 +33,25 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Order> orders;
     public Order currentOrder;
     public OrderAcceptingController controller;
+    public SharedPreferencesHelper<Order> sharedPreferencesHelper;
+    public static final String nameForSharedPreferencesHelperOrder = "currentOrder";
+    public static final String nameForSharedPreferencesHelperOrders = "orders";
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        sharedPreferencesHelper = new SharedPreferencesHelper<>(this, Order.class);
+
+        orders = sharedPreferencesHelper.getModelsArrayList(nameForSharedPreferencesHelperOrders);
+        if (orders == null) {
+            orders = new ArrayList<>();
+        }
+
+        currentOrder = sharedPreferencesHelper.getModel(nameForSharedPreferencesHelperOrder);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -61,11 +70,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }
 
-        orders = controller.getAcceptOrderList();
-        if(orders == null) {
-            orders = new ArrayList<>();
-        }
-
         currentOrder = controller.getAcceptableOrder();
 
         adapter = new AcceptedOrdersAdapter(this, orders);
@@ -81,10 +85,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
+        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         orders = controller.getAcceptOrderList();
-        if(orders == null) {
+        if (orders == null) {
             orders = new ArrayList<>();
         }
 
@@ -96,15 +107,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
+        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
         compositeDisposable.dispose();
     }
 
     public void updateView() {
         currentOrder = controller.getAcceptableOrder();
-        if(currentOrder == null) {
+        if (currentOrder == null) {
             makeButtonsDisabled();
-        }
-        else {
+        } else {
             String mass = getActualStringMass(currentOrder) + " кг";
             runOnUiThread(new Runnable() {
 
@@ -134,8 +146,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }
 
-        if(orders.size()>0)
-        {
+        if (orders.size() > 0) {
             AcceptedOrdersAdapter adapter1 = new AcceptedOrdersAdapter(this, orders);
             runOnUiThread(new Runnable() {
 
@@ -238,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            if(controller.getAcceptableOrder()!=null) {
+            if (controller.getAcceptableOrder() != null) {
                 controller.acceptAcceptableOrder();
                 updateView();
             }

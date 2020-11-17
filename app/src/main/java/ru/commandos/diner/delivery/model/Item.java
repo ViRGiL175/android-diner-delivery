@@ -6,11 +6,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Item {
 
-//    @SerializedName("name")
+    //    @SerializedName("name")
 //    @Expose
     public String name;
 
-//    @SerializedName("mass")
+    //    @SerializedName("mass")
 //    @Expose
     public float mass;
 

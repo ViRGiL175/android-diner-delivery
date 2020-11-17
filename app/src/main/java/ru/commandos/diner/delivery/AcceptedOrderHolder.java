@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
 
-public class AcceptedOrderHolder  extends RecyclerView.ViewHolder {
+public class AcceptedOrderHolder extends RecyclerView.ViewHolder {
     public AcceptedOrderHolder(@NonNull View itemView) {
         super(itemView);
     }

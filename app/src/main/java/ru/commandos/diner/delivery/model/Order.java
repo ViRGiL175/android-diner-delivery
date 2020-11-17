@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public class Order {
 
-//    @SerializedName("uuid")
+    //    @SerializedName("uuid")
 //    @Expose
     public final UUID uuid;
 
-//    @SerializedName("items")
+    //    @SerializedName("items")
 //    @Expose
     public List<Item> items = new ArrayList<>();
 
