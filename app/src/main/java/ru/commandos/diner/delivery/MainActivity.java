@@ -10,16 +10,19 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
 import io.reactivex.rxjava3.core.Observable;
 import ru.commandos.diner.delivery.controller.OrderAcceptingController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
@@ -31,10 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     public ActivityMainBinding binding;
     public AcceptedOrdersAdapter adapter;
-
     public ArrayList<Order> orders = new ArrayList<>();
     public Order currentOrder;
-
     public OrderAcceptingController controller;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -54,8 +55,18 @@ public class MainActivity extends AppCompatActivity {
 
         binding.recyclerViewAcceptedOrders.setHasFixedSize(true);
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AcceptedOrdersAdapter(this, orders);
-        binding.recyclerViewAcceptedOrders.setAdapter(adapter);
+
+        for(int i=0;i<orders.size();i++) {
+            if(orders.get(i) == null) {
+                orders.remove(i);
+            }
+        }
+
+        if(orders.size()>0)
+        {
+            adapter = new AcceptedOrdersAdapter(this, orders);
+            binding.recyclerViewAcceptedOrders.setAdapter(adapter);
+        }
 
         binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
@@ -63,13 +74,7 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannelDelivery();
 
         updateView();
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateView();
-            }
-        }, 2, 10000);
+
     }
 
     @Override
@@ -87,18 +92,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateView() {
         currentOrder = controller.getAcceptableOrder();
-        if(currentOrder != null) {
-//            binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
-//            binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
-//            binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
-//            binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
+        if (currentOrder != null) {
+            binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
+            binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
+            binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+            binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
         }
 
         orders = controller.getAcceptOrderList();
-        if(orders == null) {
+        if (orders == null) {
             orders = new ArrayList<>();
         }
 //        adapter.notifyDataSetChanged();
+        for(int i=0;i<orders.size();i++) {
+            if(orders.get(i) == null) {
+                orders.remove(i);
+            }
+        }
+
+        if(orders.size()>0)
+        {
+            AcceptedOrdersAdapter adapter1 = new AcceptedOrdersAdapter(this, orders);
+            binding.recyclerViewAcceptedOrders.setAdapter(adapter1);
+        }
     }
 
     public void showNotificationAboutCurrentOrder() {
@@ -176,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             controller.acceptAcceptableOrder();
+            updateView();
         }
     }
 
@@ -184,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             controller.denyAcceptableOrder();
+            updateView();
         }
     }
 }
