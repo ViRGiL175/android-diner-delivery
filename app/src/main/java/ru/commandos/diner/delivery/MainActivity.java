@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     public Order currentOrder;
     public OrderAcceptingController controller;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
