@@ -10,23 +10,22 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.UUID;
-
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import io.reactivex.rxjava3.core.Observable;
 import ru.commandos.diner.delivery.controller.OrderAcceptingController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
 import ru.commandos.diner.delivery.model.Feature;
-import ru.commandos.diner.delivery.model.Item;
 import ru.commandos.diner.delivery.model.Order;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,46 +35,41 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Order> orders = new ArrayList<>();
     public Order currentOrder;
 
-    public OrderAcceptingController controller = new OrderAcceptingController();
+    public OrderAcceptingController controller;
 
-    {
-        Order order = new Order(UUID.randomUUID());
-        Feature[] f = new Feature[2];
-        f[0] = Feature.LIQUID;
-        f[1] = Feature.SHOULD_BE_COLD;
-        Item item = new Item("Пельмеши", (float) 5.15, f);
-        order.items.add(item);
-        order.items.add(item);
-        orders.add(order);
-        orders.add(order);
-        orders.add(order);
-
-        currentOrder = order;
-    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        controller = new OrderAcceptingController("df307a18-1b66-432a-8011-39b68397d000", compositeDisposable);
+        controller.check();
 
         binding.recyclerViewAcceptedOrders.setHasFixedSize(true);
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AcceptedOrdersAdapter(this, orders);
         binding.recyclerViewAcceptedOrders.setAdapter(adapter);
 
-        createNotificationChannelDelivery();
-
-        binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
-        binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
-
         binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
 
-        binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
-        binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
+        createNotificationChannelDelivery();
+
+        updateView();
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateView();
+            }
+        }, 2, 10000);
     }
 
     @Override
@@ -84,23 +78,48 @@ public class MainActivity extends AppCompatActivity {
         showNotificationAboutCurrentOrder();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
+    }
+
+    public void updateView() {
+        currentOrder = controller.getAcceptableOrder();
+        if(currentOrder != null) {
+//            binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
+//            binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
+//            binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+//            binding.textViewCurrentMass.setText(getActualStringMass(currentOrder) + " кг");
+        }
+
+        orders = controller.getAcceptOrderList();
+        if(orders == null) {
+            orders = new ArrayList<>();
+        }
+//        adapter.notifyDataSetChanged();
+    }
+
     public void showNotificationAboutCurrentOrder() {
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (currentOrder != null) {
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this, "CHANNEL_ID")
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("У вас новый заказ!")
-                        .setContentText(getActualStringFeatures(currentOrder) + " " + getActualStringMass(currentOrder) + " кг")
-                        .setContentIntent(resultPendingIntent);
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(this, "CHANNEL_ID")
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("У вас новый заказ!")
+                            .setContentText(getActualStringFeatures(currentOrder) + " " + getActualStringMass(currentOrder) + " кг")
+                            .setContentIntent(resultPendingIntent);
 
-        Notification notification = builder.build();
-        notificationManager.notify(1, notification);
+            Notification notification = builder.build();
+            notificationManager.notify(1, notification);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -156,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            controller.acceptAcceptableOrder(currentOrder);
+            controller.acceptAcceptableOrder();
         }
     }
 

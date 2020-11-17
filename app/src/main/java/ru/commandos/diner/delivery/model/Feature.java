@@ -1,4 +1,3 @@
-
 package ru.commandos.diner.delivery.model;
 
 public enum Feature {
