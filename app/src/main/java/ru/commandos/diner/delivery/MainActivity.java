@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     public ActivityMainBinding binding;
     public AcceptedOrdersAdapter adapter;
-    public ArrayList<Order> orders = new ArrayList<>();
+    public ArrayList<Order> orders;
     public Order currentOrder;
     public OrderAcceptingController controller;
 
@@ -62,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }
 
+        orders = controller.getAcceptOrderList();
+        if(orders == null) {
+            orders = new ArrayList<>();
+        }
+
+        currentOrder = controller.getAcceptableOrder();
+
         adapter = new AcceptedOrdersAdapter(this, orders);
         binding.recyclerViewAcceptedOrders.setAdapter(adapter);
 
@@ -69,16 +76,21 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
 
         createNotificationChannelDelivery();
-
         updateView();
-
         makeButtonsDisabled();
+        collapseInfoAboutCurrentOrder();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        showNotificationAboutCurrentOrder();
+    protected void onResume() {
+        super.onResume();
+        orders = controller.getAcceptOrderList();
+        if(orders == null) {
+            orders = new ArrayList<>();
+        }
+
+        currentOrder = controller.getAcceptableOrder();
+        updateView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -90,7 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateView() {
         currentOrder = controller.getAcceptableOrder();
-        if (currentOrder != null) {
+        if(currentOrder == null) {
+            makeButtonsDisabled();
+        }
+        else {
             String mass = getActualStringMass(currentOrder) + " кг";
             runOnUiThread(new Runnable() {
 
@@ -100,6 +115,11 @@ public class MainActivity extends AppCompatActivity {
                     binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
                     binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
                     binding.textViewCurrentMass.setText(mass);
+
+                    binding.textViewContent.setText("Содержимое: ");
+                    binding.textViewOrder.setText("Заказ");
+                    binding.textViewTotalWeight.setText("Общий вес: ");
+                    binding.textViewWarn.setText("У вас новый заказ!");
                 }
             });
         }
@@ -108,8 +128,6 @@ public class MainActivity extends AppCompatActivity {
         if (orders == null) {
             orders = new ArrayList<>();
         }
-
-//        adapter.notifyDataSetChanged();
 
 //        for(int i=0;i<orders.size();i++) {
 //            if(orders.get(i) == null) {
@@ -125,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     binding.recyclerViewAcceptedOrders.setAdapter(adapter1);
+//                    adapter.notifyDataSetChanged();
                 }
             });
         }
@@ -137,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.buttonAccept.setEnabled(true);
             }
         });
+        showNotificationAboutCurrentOrder();
     }
 
     public void showNotificationAboutCurrentOrder() {
@@ -149,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             NotificationCompat.Builder builder =
-                    new NotificationCompat.Builder(this, "CHANNEL_ID")
+                    new NotificationCompat.Builder(this, "DELIVERY_CHANNEL_ID")
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("У вас новый заказ!")
                             .setContentText(getActualStringFeatures(currentOrder) + " " + getActualStringMass(currentOrder) + " кг")
@@ -160,12 +180,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void deleteNotification() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(1);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void createNotificationChannelDelivery() {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        NotificationChannel channel = new NotificationChannel("CHANNEL_ID", "Delivery",
+        NotificationChannel channel = new NotificationChannel("DELIVERY_CHANNEL_ID", "Delivery",
                 NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription("Notifications about orders");
         channel.enableLights(true);
@@ -218,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
                 updateView();
             }
             makeButtonsDisabled();
+            collapseInfoAboutCurrentOrder();
+            deleteNotification();
         }
     }
 
@@ -228,6 +256,8 @@ public class MainActivity extends AppCompatActivity {
             controller.denyAcceptableOrder();
             updateView();
             makeButtonsDisabled();
+            collapseInfoAboutCurrentOrder();
+            deleteNotification();
         }
     }
 
@@ -236,4 +266,21 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonDeny.setEnabled(false);
     }
 
+    public void collapseInfoAboutCurrentOrder() {
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                binding.textViewWarn.setText("У вас нет новых заказов");
+                binding.textViewOrder.setText("");
+                binding.textViewTotalWeight.setText("");
+                binding.textViewContent.setText("");
+                binding.textViewCurrentUUID.setText("");
+                binding.textViewCurrentFood.setText("");
+                binding.textViewCurrentFeatures.setText("");
+                binding.textViewCurrentMass.setText("");
+            }
+        });
+    }
 }
