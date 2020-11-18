@@ -119,7 +119,17 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        orders = controller.getAcceptOrderList();
+        orders = sharedPreferencesHelper.getModelsArrayList(nameForSharedPreferencesHelperOrders);
+
+        ArrayList<Order> orders1;
+        orders1 = controller.getAcceptOrderList();
+
+        if (orders1 == null) {
+            orders1 = new ArrayList<>();
+        }
+
+        orders.addAll(orders1);
+
         if (orders == null) {
             orders = new ArrayList<>();
         }
@@ -196,8 +206,10 @@ public class MainActivity extends AppCompatActivity {
             if (h.contains(Feature.SHOULD_BE_HOT))
                 if (features.equals("")) features = "";
                 else features += ", должно быть горячим";
-            features += "!";
-            return features;
+            if (features == "")
+                return "Нет особенностей";
+            else
+                return features += "!";
         } else {
             return "NULL";
         }
