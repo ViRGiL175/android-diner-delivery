@@ -15,9 +15,9 @@ import ru.commandos.diner.delivery.model.Order;
 public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHolder> {
 
     ArrayList<Order> orders;
-    Activity activity;
+    MainActivity activity;
 
-    public AcceptedOrdersAdapter(Activity activity, ArrayList<Order> orders) {
+    public AcceptedOrdersAdapter(MainActivity activity, ArrayList<Order> orders) {
         this.orders = orders;
         this.activity = activity;
     }
@@ -35,10 +35,10 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
         Order order = orders.get(position);
         String uuid = order.uuid;
 
-        holder.binding.textViewFood.setText(MainActivity.getActualStringFood(order));
+        holder.binding.textViewFood.setText(activity.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);
-        holder.binding.textViewFeatures.setText(MainActivity.getActualStringFeatures(order));
-        holder.binding.textViewMass.setText(MainActivity.getActualStringMass(order) + " кг");
+        holder.binding.textViewFeatures.setText(activity.getActualStringFeatures(order));
+        holder.binding.textViewMass.setText(activity.getActualStringMass(order) + " кг");
     }
 
     @Override
