@@ -13,6 +13,7 @@ import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
 import ru.commandos.diner.delivery.model.Order;
 
 public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHolder> {
+
     ArrayList<Order> orders;
     Activity activity;
 

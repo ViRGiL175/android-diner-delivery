@@ -19,6 +19,7 @@
       </option>
     </JetCodeStyleSettings>
     <codeStyleSettings language="JAVA">
+      <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
       <arrangement>
         <rules>
           <section>

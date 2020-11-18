@@ -16,21 +16,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import retrofit2.internal.EverythingIsNonNull;
+
+@EverythingIsNonNull
 public class SharedPreferencesHelper<M> {
 
     private static final String MY_SETTING_NAME = "shared_prefs_helper_data";
-    private final Context context;
     private final SharedPreferences sharedPreferences;
-    private final Class<M> modelClass;
-    private final Moshi moshi = new Moshi.Builder().build();
     private final JsonAdapter<List<M>> listJsonAdapter;
     private final JsonAdapter<M> modelJsonAdapter;
 
     // Для работы хелпера необходим Контекст
     public SharedPreferencesHelper(@NonNull Context context, @NonNull Class<M> modelClass) {
-        this.context = context;
-        this.modelClass = modelClass;
         sharedPreferences = context.getSharedPreferences(MY_SETTING_NAME, Context.MODE_PRIVATE);
+        Moshi moshi = new Moshi.Builder().build();
         listJsonAdapter = moshi.adapter(Types.newParameterizedType(List.class, modelClass));
         modelJsonAdapter = moshi.adapter(modelClass);
     }

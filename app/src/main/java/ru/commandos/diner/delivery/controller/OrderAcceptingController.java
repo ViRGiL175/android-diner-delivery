@@ -2,15 +2,19 @@ package ru.commandos.diner.delivery.controller;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.MainActivity;
 import ru.commandos.diner.delivery.model.Order;
 
+@EverythingIsNonNull
 public class OrderAcceptingController {
 
     private final ArrayList<Order> acceptOrder = new ArrayList<>();
@@ -18,7 +22,8 @@ public class OrderAcceptingController {
     private final UUID courierUuid;
     private final ServerApi jsonApi = CourierService.getInstance().getServerApi();
     private final MainActivity activity;
-    private Order acceptableOrder = null;
+    @Nullable
+    private Order acceptableOrder;
 
     public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable, MainActivity activity) {
         this.courierUuid = UUID.fromString(courierUuid);
@@ -30,6 +35,7 @@ public class OrderAcceptingController {
         return acceptOrder;
     }
 
+    @Nullable
     public Order getAcceptableOrder() {
         return acceptableOrder;
     }

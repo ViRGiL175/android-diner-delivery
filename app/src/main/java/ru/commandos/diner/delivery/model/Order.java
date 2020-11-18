@@ -3,6 +3,9 @@ package ru.commandos.diner.delivery.model;
 import java.util.List;
 import java.util.UUID;
 
+import retrofit2.internal.EverythingIsNonNull;
+
+@EverythingIsNonNull
 public class Order {
 
     public final String uuid;

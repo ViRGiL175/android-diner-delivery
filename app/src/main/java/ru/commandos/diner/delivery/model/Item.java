@@ -1,5 +1,8 @@
 package ru.commandos.diner.delivery.model;
 
+import retrofit2.internal.EverythingIsNonNull;
+
+@EverythingIsNonNull
 public class Item {
 
     public final String name;

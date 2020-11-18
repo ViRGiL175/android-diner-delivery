@@ -1,18 +1,14 @@
 package ru.commandos.diner.delivery;
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
 
+@EverythingIsNonNull
 public class AcceptedOrderHolder extends RecyclerView.ViewHolder {
-    public AcceptedOrderBinding binding;
 
-    public AcceptedOrderHolder(@NonNull View itemView) {
-        super(itemView);
-    }
+    public AcceptedOrderBinding binding;
 
     public AcceptedOrderHolder(AcceptedOrderBinding binding) {
         super(binding.getRoot());
