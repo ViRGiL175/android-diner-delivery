@@ -3,13 +3,11 @@ package ru.commandos.diner.delivery.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import ru.commandos.diner.delivery.model.Feature;
@@ -27,6 +25,10 @@ class ServerMock implements ServerApi {
 
     private Order order = null;
 
+    public ServerMock() {
+        randomOrder();
+    }
+
     private void randomOrder() {
         Observable.interval(1, 15, TimeUnit.SECONDS).doOnNext(v -> {
 
@@ -43,10 +45,6 @@ class ServerMock implements ServerApi {
             }
             order = new Order(UUID.randomUUID(), items);
         }).subscribe();
-    }
-
-    public ServerMock() {
-        randomOrder();
     }
 
     @Override

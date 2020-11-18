@@ -7,9 +7,9 @@ import ru.commandos.diner.delivery.BuildConfig;
 
 public class CourierService {
 
-    private static CourierService courierService;
     private static final String BASE_URL = "https://10.0.2.2:8080";
-    private Retrofit retrofit;
+    private static CourierService courierService;
+    private final Retrofit retrofit;
 
     private CourierService() {
         retrofit = new Retrofit.Builder().
@@ -26,7 +26,7 @@ public class CourierService {
         return courierService;
     }
 
-    public ServerApi getJSONApi() {
+    public ServerApi getServerApi() {
         if (BuildConfig.BUILD_TYPE.equals("debug")) {
             return new ServerMock();
         } else {

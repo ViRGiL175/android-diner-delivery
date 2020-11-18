@@ -1,6 +1,5 @@
 package ru.commandos.diner.delivery;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -9,12 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 
 import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
-import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Order;
 
 public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHolder> {
@@ -37,7 +32,7 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
     @Override
     public void onBindViewHolder(@NonNull AcceptedOrderHolder holder, int position) {
         Order order = orders.get(position);
-        String uuid = order.uuid.toString();
+        String uuid = order.uuid;
 
         holder.binding.textViewFood.setText(MainActivity.getActualStringFood(order));
         holder.binding.textViewUUID.setText(uuid);

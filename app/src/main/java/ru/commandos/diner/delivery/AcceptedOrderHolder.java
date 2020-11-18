@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
 
 public class AcceptedOrderHolder extends RecyclerView.ViewHolder {
+    public AcceptedOrderBinding binding;
+
     public AcceptedOrderHolder(@NonNull View itemView) {
         super(itemView);
     }
-
-    public AcceptedOrderBinding binding;
 
     public AcceptedOrderHolder(AcceptedOrderBinding binding) {
         super(binding.getRoot());

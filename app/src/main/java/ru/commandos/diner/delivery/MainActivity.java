@@ -20,24 +20,58 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import ru.commandos.diner.delivery.controller.OrderAcceptingController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Order;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String nameForSharedPreferencesHelperOrder = "currentOrder";
+    public static final String nameForSharedPreferencesHelperOrders = "orders";
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     public ActivityMainBinding binding;
     public AcceptedOrdersAdapter adapter;
     public ArrayList<Order> orders;
     public Order currentOrder;
     public OrderAcceptingController controller;
     public SharedPreferencesHelper<Order> sharedPreferencesHelper;
-    public static final String nameForSharedPreferencesHelperOrder = "currentOrder";
-    public static final String nameForSharedPreferencesHelperOrders = "orders";
 
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    public static String getActualStringFood(Order order) {
+        StringBuilder food = new StringBuilder(order.items.get(0).name);
+        for (int i = 1; i < order.items.size(); i++) {
+            food.append(", ");
+            String c = order.items.get(i).name;
+            c = c.toLowerCase();
+            food.append(c);
+        }
+        return String.valueOf(food);
+    }
+
+    public static String getActualStringFeatures(Order order) {
+        String features = "";
+        HashSet<Feature> h = new HashSet<>(3);
+        for (int i = 0; i < order.items.size(); i++)
+            Collections.addAll(h, order.items.get(i).features);
+        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
+        if (h.contains(Feature.SHOULD_BE_COLD))
+            if (features.equals("")) features = "Должно быть холодным";
+            else features += ", должно быть холодным";
+        if (h.contains(Feature.SHOULD_BE_HOT))
+            if (features.equals("")) features = "";
+            else features += ", должно быть горячим";
+        features += "!";
+        return features;
+    }
+
+    public static String getActualStringMass(Order order) {
+        float m = 0;
+        for (int i = 0; i < order.items.size(); i++) {
+            m += order.items.get(i).mass;
+        }
+        return String.valueOf(m);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -122,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void run() {
-                    binding.textViewCurrentUUID.setText(currentOrder.uuid.toString());
+                    binding.textViewCurrentUUID.setText(currentOrder.uuid);
                     binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
                     binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
                     binding.textViewCurrentMass.setText(mass);
@@ -210,39 +244,27 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public static String getActualStringFood(Order order) {
-        StringBuilder food = new StringBuilder(order.items.get(0).name);
-        for (int i = 1; i < order.items.size(); i++) {
-            food.append(", ");
-            String c = order.items.get(i).name;
-            c = c.toLowerCase();
-            food.append(c);
-        }
-        return String.valueOf(food);
+    public void makeButtonsDisabled() {
+        binding.buttonAccept.setEnabled(false);
+        binding.buttonDeny.setEnabled(false);
     }
 
-    public static String getActualStringFeatures(Order order) {
-        String features = "";
-        HashSet<Feature> h = new HashSet<>(3);
-        for (int i = 0; i < order.items.size(); i++)
-            Collections.addAll(h, order.items.get(i).features);
-        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
-        if (h.contains(Feature.SHOULD_BE_COLD))
-            if (features.equals("")) features = "Должно быть холодным";
-            else features += ", должно быть холодным";
-        if (h.contains(Feature.SHOULD_BE_HOT))
-            if (features.equals("")) features = "";
-            else features += ", должно быть горячим";
-        features += "!";
-        return features;
-    }
+    public void collapseInfoAboutCurrentOrder() {
 
-    public static String getActualStringMass(Order order) {
-        float m = 0;
-        for (int i = 0; i < order.items.size(); i++) {
-            m += order.items.get(i).mass;
-        }
-        return String.valueOf(m);
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                binding.textViewWarn.setText("У вас нет новых заказов");
+                binding.textViewOrder.setText("");
+                binding.textViewTotalWeight.setText("");
+                binding.textViewContent.setText("");
+                binding.textViewCurrentUUID.setText("");
+                binding.textViewCurrentFood.setText("");
+                binding.textViewCurrentFeatures.setText("");
+                binding.textViewCurrentMass.setText("");
+            }
+        });
     }
 
     public class ButtonAcceptOnClickListener implements View.OnClickListener {
@@ -269,28 +291,5 @@ public class MainActivity extends AppCompatActivity {
             collapseInfoAboutCurrentOrder();
             deleteNotification();
         }
-    }
-
-    public void makeButtonsDisabled() {
-        binding.buttonAccept.setEnabled(false);
-        binding.buttonDeny.setEnabled(false);
-    }
-
-    public void collapseInfoAboutCurrentOrder() {
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                binding.textViewWarn.setText("У вас нет новых заказов");
-                binding.textViewOrder.setText("");
-                binding.textViewTotalWeight.setText("");
-                binding.textViewContent.setText("");
-                binding.textViewCurrentUUID.setText("");
-                binding.textViewCurrentFood.setText("");
-                binding.textViewCurrentFeatures.setText("");
-                binding.textViewCurrentMass.setText("");
-            }
-        });
     }
 }

@@ -15,10 +15,10 @@ public class OrderAcceptingController {
 
     private final ArrayList<Order> acceptOrder = new ArrayList<>();
     private final CompositeDisposable compositeDisposable;
-    private UUID courierUuid;
+    private final UUID courierUuid;
+    private final ServerApi jsonApi = CourierService.getInstance().getServerApi();
+    private final MainActivity activity;
     private Order acceptableOrder = null;
-    private ServerApi jsonApi = CourierService.getInstance().getJSONApi();
-    private MainActivity activity;
 
     public OrderAcceptingController(String courierUuid, CompositeDisposable compositeDisposable, MainActivity activity) {
         this.courierUuid = UUID.fromString(courierUuid);
