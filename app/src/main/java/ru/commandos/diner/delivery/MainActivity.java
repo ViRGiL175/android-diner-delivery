@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.textViewContent.setText("Содержимое: ");
                 binding.textViewOrder.setText("Заказ");
                 binding.textViewTotalWeight.setText("Общий вес: ");
-                binding.textViewWarn.setText("У вас новый заказ!");
+                binding.textViewWarn.setText("Новый заказ!");
             });
         }
 

@@ -6,84 +6,146 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewAcceptedOrders"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/textViewWarn"
-        app:layout_constraintStart_toStartOf="@+id/textViewWarn"
-        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="256dp"
+        android:layout_margin="8dp"
+        app:cardElevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/buttonAccept"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Принять"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonDeny"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewCurrentMass"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/textViewWarn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:text="Новый заказ!"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewCurrentFeatures"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="TextView"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewCurrentFood" />
+
+            <TextView
+                android:id="@+id/textViewCurrentFood"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:minLines="1"
+                android:text="Food"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewContent" />
+
+            <TextView
+                android:id="@+id/textViewCurrentMass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:text="0"
+                app:layout_constraintEnd_toEndOf="@+id/textViewWarn"
+                app:layout_constraintStart_toEndOf="@+id/textViewTotalWeight"
+                app:layout_constraintTop_toTopOf="@+id/textViewTotalWeight" />
+
+            <TextView
+                android:id="@+id/textViewTotalWeight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Вес:"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewCurrentFeatures" />
+
+            <TextView
+                android:id="@+id/textViewContent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Внутри:"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewOrder" />
+
+            <TextView
+                android:id="@+id/textViewCurrentUUID"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="UUID"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintEnd_toEndOf="@+id/textViewWarn"
+                app:layout_constraintStart_toEndOf="@+id/textViewOrder"
+                app:layout_constraintTop_toTopOf="@+id/textViewOrder" />
+
+            <TextView
+                android:id="@+id/textViewOrder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Заказ"
+                app:layout_constraintStart_toStartOf="@+id/textViewWarn"
+                app:layout_constraintTop_toBottomOf="@+id/textViewWarn" />
+
+            <Button
+                android:id="@+id/buttonDeny"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:text="Отклонить"
+                app:backgroundTint="@color/error"
+                app:layout_constraintBottom_toBottomOf="@+id/buttonAccept"
+                app:layout_constraintEnd_toEndOf="@+id/textViewWarn"
+                app:layout_constraintStart_toEndOf="@+id/buttonAccept"
+                app:layout_constraintTop_toTopOf="@+id/buttonAccept" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/textViewOrder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Заказ"
-        app:layout_constraintStart_toStartOf="@+id/textViewWarn"
-        app:layout_constraintTop_toBottomOf="@+id/textViewWarn" />
-
-    <TextView
-        android:id="@+id/textViewCurrentUUID"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:text="UUID"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintEnd_toEndOf="@+id/textViewWarn"
-        app:layout_constraintStart_toEndOf="@+id/textViewOrder"
-        app:layout_constraintTop_toTopOf="@+id/textViewOrder" />
-
-    <TextView
-        android:id="@+id/textViewContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Содержимое:"
-        app:layout_constraintEnd_toEndOf="@+id/textViewCurrentUUID"
-        app:layout_constraintStart_toStartOf="@+id/textViewOrder"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentUUID" />
-
-    <TextView
-        android:id="@+id/textViewCurrentFood"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:maxLines="5"
-        android:minLines="1"
-        android:text="Food"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintEnd_toEndOf="@+id/textViewCurrentUUID"
-        app:layout_constraintStart_toStartOf="@+id/textViewOrder"
-        app:layout_constraintTop_toBottomOf="@+id/textViewContent" />
-
-    <Button
-        android:id="@+id/buttonAccept"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Принять"
-        app:layout_constraintEnd_toStartOf="@+id/buttonDeny"
-        app:layout_constraintStart_toStartOf="@+id/textViewCurrentFood"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTotalWeight" />
-
-    <Button
-        android:id="@+id/buttonDeny"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Отклонить"
-        app:backgroundTint="@color/error"
-        app:layout_constraintEnd_toEndOf="@+id/textViewCurrentFood"
-        app:layout_constraintTop_toTopOf="@+id/buttonAccept" />
-
-    <TextView
-        android:id="@+id/textViewWarn"
+        android:id="@+id/textView10"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -91,61 +153,20 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:text="У вас новый заказ!"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:text="Принятые заказы:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewAcceptedOrders"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView10"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Список принятых заказов:"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toEndOf="@+id/buttonDeny"
-        app:layout_constraintStart_toStartOf="@+id/buttonAccept"
-        app:layout_constraintTop_toBottomOf="@+id/buttonAccept" />
-
-    <TextView
-        android:id="@+id/textViewCurrentMass"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:text="0"
-        app:layout_constraintEnd_toEndOf="@+id/textViewCurrentFood"
-        app:layout_constraintStart_toEndOf="@+id/textViewTotalWeight"
-        app:layout_constraintTop_toTopOf="@+id/textViewTotalWeight" />
-
-    <TextView
-        android:id="@+id/textViewTotalWeight"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Общий вес:"
-        app:layout_constraintStart_toStartOf="@+id/textViewCurrentFood"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentFeatures" />
-
-    <TextView
-        android:id="@+id/textViewCurrentFeatures"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintEnd_toEndOf="@+id/textViewCurrentFood"
-        app:layout_constraintStart_toStartOf="@+id/textViewCurrentFood"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCurrentFood" />
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
