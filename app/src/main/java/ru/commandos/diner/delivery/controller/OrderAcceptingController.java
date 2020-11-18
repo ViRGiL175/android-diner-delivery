@@ -1,6 +1,7 @@
 package ru.commandos.diner.delivery.controller;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -20,7 +21,7 @@ public class OrderAcceptingController {
     private final ArrayList<Order> acceptOrder = new ArrayList<>();
     private final CompositeDisposable compositeDisposable;
     private final UUID courierUuid;
-    private final ServerApi jsonApi = CourierService.getInstance().getServerApi();
+    private final ServerApi serverApi = CourierService.getInstance().getServerApi();
     private final MainActivity activity;
     @Nullable
     private Order acceptableOrder;
@@ -53,13 +54,19 @@ public class OrderAcceptingController {
 
     public void check() {
         Log.i("ORDERING", "Checking!");
-        compositeDisposable.add(Observable.interval(1, 5, TimeUnit.SECONDS)
-                .subscribe(aLong -> {
-                    if (acceptableOrder == null) {
-                        acceptableOrder = jsonApi.getOrderWithID(courierUuid.toString());
-                        Log.i("ORDERING", "On NEXT!: " + acceptableOrder);
-                        activity.updateView();
-                    }
-                }, Throwable::printStackTrace));
+        Observable.interval(1, 5, TimeUnit.SECONDS)
+                .doOnNext(o -> serverApi.getOrderWithID(courierUuid.toString())
+                        .doOnEvent((order, throwable) -> {
+                            if (throwable == null) {
+                                acceptableOrder = order;
+                                activity.updateView();
+                                Log.i("ORDERING", "On NEXT!: " + acceptableOrder);
+                            } else {
+                                Toast.makeText(activity, throwable.getLocalizedMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .subscribe())
+                .subscribe();
     }
 }
