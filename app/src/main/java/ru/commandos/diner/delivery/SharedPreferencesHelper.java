@@ -2,11 +2,9 @@ package ru.commandos.diner.delivery;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -34,7 +32,6 @@ public class SharedPreferencesHelper<M> {
         modelJsonAdapter = moshi.adapter(modelClass);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Nullable
     public ArrayList<M> getModelsArrayList(@NonNull String listName) {
         return getListViaMoshi(listName);
@@ -44,7 +41,6 @@ public class SharedPreferencesHelper<M> {
         saveViaMoshi(listJsonAdapter, listName, models);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Nullable
     public M getModel(@NonNull String modelName) {
         return getModelViaMoshi(modelName);
@@ -54,7 +50,6 @@ public class SharedPreferencesHelper<M> {
         saveViaMoshi(modelJsonAdapter, modelName, model);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Nullable
     private M getModelViaMoshi(String modelName) {
         try {
@@ -75,7 +70,6 @@ public class SharedPreferencesHelper<M> {
                 .apply();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Nullable
     private ArrayList<M> getListViaMoshi(String listName) {
         try {

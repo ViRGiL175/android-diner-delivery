@@ -38,42 +38,6 @@ public class MainActivity extends AppCompatActivity {
     public OrderAcceptingController controller;
     public SharedPreferencesHelper<Order> sharedPreferencesHelper;
 
-    public static String getActualStringFood(Order order) {
-        StringBuilder food = new StringBuilder(order.items.get(0).name);
-        for (int i = 1; i < order.items.size(); i++) {
-            food.append(", ");
-            String c = order.items.get(i).name;
-            c = c.toLowerCase();
-            food.append(c);
-        }
-        return String.valueOf(food);
-    }
-
-    public static String getActualStringFeatures(Order order) {
-        String features = "";
-        HashSet<Feature> h = new HashSet<>(3);
-        for (int i = 0; i < order.items.size(); i++)
-            Collections.addAll(h, order.items.get(i).features);
-        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
-        if (h.contains(Feature.SHOULD_BE_COLD))
-            if (features.equals("")) features = "Должно быть холодным";
-            else features += ", должно быть холодным";
-        if (h.contains(Feature.SHOULD_BE_HOT))
-            if (features.equals("")) features = "";
-            else features += ", должно быть горячим";
-        features += "!";
-        return features;
-    }
-
-    public static String getActualStringMass(Order order) {
-        float m = 0;
-        for (int i = 0; i < order.items.size(); i++) {
-            m += order.items.get(i).mass;
-        }
-        return String.valueOf(m);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -98,12 +62,6 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerViewAcceptedOrders.setHasFixedSize(true);
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
 
-//        for(int i=0;i<orders.size();i++) {
-//            if(orders.get(i) == null) {
-//                orders.remove(i);
-//            }
-//        }
-
         currentOrder = controller.getAcceptableOrder();
 
         adapter = new AcceptedOrdersAdapter(this, orders);
@@ -112,29 +70,12 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonAccept.setOnClickListener(new ButtonAcceptOnClickListener());
         binding.buttonDeny.setOnClickListener(new ButtonDenyOnClickListener());
 
-        createNotificationChannelDelivery();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannelDelivery();
+        }
         updateView();
         makeButtonsDisabled();
         collapseInfoAboutCurrentOrder();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
-        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        orders = controller.getAcceptOrderList();
-        if (orders == null) {
-            orders = new ArrayList<>();
-        }
-
-        currentOrder = controller.getAcceptableOrder();
-        updateView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -146,26 +87,35 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.dispose();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void createNotificationChannelDelivery() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("DELIVERY_CHANNEL_ID", "Delivery",
+                NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("Notifications about orders");
+        channel.enableLights(true);
+        channel.setLightColor(Color.RED);
+        channel.enableVibration(false);
+        notificationManager.createNotificationChannel(channel);
+    }
+
     public void updateView() {
         currentOrder = controller.getAcceptableOrder();
         if (currentOrder == null) {
             makeButtonsDisabled();
         } else {
             String mass = getActualStringMass(currentOrder) + " кг";
-            runOnUiThread(new Runnable() {
+            runOnUiThread(() -> {
+                binding.textViewCurrentUUID.setText(currentOrder.uuid);
+                binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
+                binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+                binding.textViewCurrentMass.setText(mass);
 
-                @Override
-                public void run() {
-                    binding.textViewCurrentUUID.setText(currentOrder.uuid);
-                    binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
-                    binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
-                    binding.textViewCurrentMass.setText(mass);
-
-                    binding.textViewContent.setText("Содержимое: ");
-                    binding.textViewOrder.setText("Заказ");
-                    binding.textViewTotalWeight.setText("Общий вес: ");
-                    binding.textViewWarn.setText("У вас новый заказ!");
-                }
+                binding.textViewContent.setText("Содержимое: ");
+                binding.textViewOrder.setText("Заказ");
+                binding.textViewTotalWeight.setText("Общий вес: ");
+                binding.textViewWarn.setText("У вас новый заказ!");
             });
         }
 
@@ -174,33 +124,70 @@ public class MainActivity extends AppCompatActivity {
             orders = new ArrayList<>();
         }
 
-//        for(int i=0;i<orders.size();i++) {
-//            if(orders.get(i) == null) {
-//                orders.remove(i);
-//            }
-//        }
-
         if (orders.size() > 0) {
             AcceptedOrdersAdapter adapter1 = new AcceptedOrdersAdapter(this, orders);
-            runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    binding.recyclerViewAcceptedOrders.setAdapter(adapter1);
-//                    adapter.notifyDataSetChanged();
-                }
-            });
+            runOnUiThread(() -> binding.recyclerViewAcceptedOrders.setAdapter(adapter1));
         }
 
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                binding.buttonDeny.setEnabled(true);
-                binding.buttonAccept.setEnabled(true);
-            }
+        runOnUiThread(() -> {
+            binding.buttonDeny.setEnabled(true);
+            binding.buttonAccept.setEnabled(true);
         });
         showNotificationAboutCurrentOrder();
+    }
+
+    public void makeButtonsDisabled() {
+        binding.buttonAccept.setEnabled(false);
+        binding.buttonDeny.setEnabled(false);
+    }
+
+    public void collapseInfoAboutCurrentOrder() {
+
+        runOnUiThread(() -> {
+            binding.textViewWarn.setText("У вас нет новых заказов");
+            binding.textViewOrder.setText("");
+            binding.textViewTotalWeight.setText("");
+            binding.textViewContent.setText("");
+            binding.textViewCurrentUUID.setText("");
+            binding.textViewCurrentFood.setText("");
+            binding.textViewCurrentFeatures.setText("");
+            binding.textViewCurrentMass.setText("");
+        });
+    }
+
+    public String getActualStringMass(Order order) {
+        float m = 0;
+        for (int i = 0; i < order.items.size(); i++) {
+            m += order.items.get(i).mass;
+        }
+        return String.valueOf(m);
+    }
+
+    public String getActualStringFood(Order order) {
+        StringBuilder food = new StringBuilder(order.items.get(0).name);
+        for (int i = 1; i < order.items.size(); i++) {
+            food.append(", ");
+            String c = order.items.get(i).name;
+            c = c.toLowerCase();
+            food.append(c);
+        }
+        return String.valueOf(food);
+    }
+
+    public String getActualStringFeatures(Order order) {
+        String features = "";
+        HashSet<Feature> h = new HashSet<>(3);
+        for (int i = 0; i < order.items.size(); i++)
+            Collections.addAll(h, order.items.get(i).features);
+        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
+        if (h.contains(Feature.SHOULD_BE_COLD))
+            if (features.equals("")) features = "Должно быть холодным";
+            else features += ", должно быть холодным";
+        if (h.contains(Feature.SHOULD_BE_HOT))
+            if (features.equals("")) features = "";
+            else features += ", должно быть горячим";
+        features += "!";
+        return features;
     }
 
     public void showNotificationAboutCurrentOrder() {
@@ -224,47 +211,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
+        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        orders = controller.getAcceptOrderList();
+        if (orders == null) {
+            orders = new ArrayList<>();
+        }
+
+        currentOrder = controller.getAcceptableOrder();
+        updateView();
+    }
+
     public void deleteNotification() {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(1);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void createNotificationChannelDelivery() {
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        NotificationChannel channel = new NotificationChannel("DELIVERY_CHANNEL_ID", "Delivery",
-                NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("Notifications about orders");
-        channel.enableLights(true);
-        channel.setLightColor(Color.RED);
-        channel.enableVibration(false);
-        notificationManager.createNotificationChannel(channel);
-    }
-
-    public void makeButtonsDisabled() {
-        binding.buttonAccept.setEnabled(false);
-        binding.buttonDeny.setEnabled(false);
-    }
-
-    public void collapseInfoAboutCurrentOrder() {
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                binding.textViewWarn.setText("У вас нет новых заказов");
-                binding.textViewOrder.setText("");
-                binding.textViewTotalWeight.setText("");
-                binding.textViewContent.setText("");
-                binding.textViewCurrentUUID.setText("");
-                binding.textViewCurrentFood.setText("");
-                binding.textViewCurrentFeatures.setText("");
-                binding.textViewCurrentMass.setText("");
-            }
-        });
     }
 
     public class ButtonAcceptOnClickListener implements View.OnClickListener {
