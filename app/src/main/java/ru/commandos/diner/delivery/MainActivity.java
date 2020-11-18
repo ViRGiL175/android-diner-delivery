@@ -156,38 +156,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getActualStringMass(Order order) {
-        float m = 0;
-        for (int i = 0; i < order.items.size(); i++) {
-            m += order.items.get(i).mass;
+//        float m = 0;
+//        for (int i = 0; i < order.items.size(); i++) {
+//            m += order.items.get(i).mass;
+//        }
+//        return String.valueOf(m);
+        if (order.items != null) {
+            return String.valueOf(order.items.stream().mapToLong(value -> (long) value.mass).sum());
+        } else {
+            return "NULL";
         }
-        return String.valueOf(m);
     }
 
     public String getActualStringFood(Order order) {
-        StringBuilder food = new StringBuilder(order.items.get(0).name);
-        for (int i = 1; i < order.items.size(); i++) {
-            food.append(", ");
-            String c = order.items.get(i).name;
-            c = c.toLowerCase();
-            food.append(c);
+        if (order.items != null) {
+            StringBuilder food = new StringBuilder(order.items.get(0).name);
+            for (int i = 1; i < order.items.size(); i++) {
+                food.append(", ");
+                String c = order.items.get(i).name;
+                c = c.toLowerCase();
+                food.append(c);
+            }
+            return String.valueOf(food);
+        } else {
+            return "NULL";
         }
-        return String.valueOf(food);
     }
 
     public String getActualStringFeatures(Order order) {
         String features = "";
         HashSet<Feature> h = new HashSet<>(3);
-        for (int i = 0; i < order.items.size(); i++)
-            Collections.addAll(h, order.items.get(i).features);
-        if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
-        if (h.contains(Feature.SHOULD_BE_COLD))
-            if (features.equals("")) features = "Должно быть холодным";
-            else features += ", должно быть холодным";
-        if (h.contains(Feature.SHOULD_BE_HOT))
-            if (features.equals("")) features = "";
-            else features += ", должно быть горячим";
-        features += "!";
-        return features;
+        if (order.items != null) {
+            for (int i = 0; i < order.items.size(); i++)
+                Collections.addAll(h, order.items.get(i).features);
+            if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
+            if (h.contains(Feature.SHOULD_BE_COLD))
+                if (features.equals("")) features = "Должно быть холодным";
+                else features += ", должно быть холодным";
+            if (h.contains(Feature.SHOULD_BE_HOT))
+                if (features.equals("")) features = "";
+                else features += ", должно быть горячим";
+            features += "!";
+            return features;
+        } else {
+            return "NULL";
+        }
     }
 
     public void showNotificationAboutCurrentOrder() {
