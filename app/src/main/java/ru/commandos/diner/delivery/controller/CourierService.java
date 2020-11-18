@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.moshi.MoshiConverterFactory;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.BuildConfig;
 
@@ -30,7 +30,7 @@ public class CourierService {
                 .baseUrl(BASE_URL)
                 .client(client)
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create())
                 .build();
     }
 
