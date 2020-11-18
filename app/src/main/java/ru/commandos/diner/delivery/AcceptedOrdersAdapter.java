@@ -1,6 +1,5 @@
 package ru.commandos.diner.delivery;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -35,10 +34,10 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
         Order order = orders.get(position);
         String uuid = order.uuid;
 
-        holder.binding.textViewFood.setText(activity.getActualStringFood(order));
-        holder.binding.textViewUUID.setText(uuid);
-        holder.binding.textViewFeatures.setText(activity.getActualStringFeatures(order));
-        holder.binding.textViewMass.setText(activity.getActualStringMass(order) + " кг");
+        holder.binding.foodItems.setText(activity.getActualStringFood(order));
+        holder.binding.orderUuid.setText(uuid);
+        holder.binding.foodFeatures.setText(activity.getActualStringFeatures(order));
+        holder.binding.foodMass.setText(activity.getActualStringMass(order) + " кг");
     }
 
     @Override
