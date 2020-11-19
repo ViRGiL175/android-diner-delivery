@@ -15,7 +15,7 @@ public class Item extends BaseApiModel {
     @Nullable
     protected final Feature[] features;
 
-    public  Item(@Nullable String name, float mass, @Nullable Feature[] features) {
+    public Item(@Nullable String name, float mass, @Nullable Feature[] features) {
         this.name = name;
         this.mass = mass;
         this.features = features;

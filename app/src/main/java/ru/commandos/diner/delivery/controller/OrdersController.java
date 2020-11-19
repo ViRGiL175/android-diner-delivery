@@ -5,56 +5,55 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.MainActivity;
+import ru.commandos.diner.delivery.SharedPreferencesHelper;
 import ru.commandos.diner.delivery.model.Order;
-
-import static autodispose2.AutoDispose.autoDisposable;
+import timber.log.Timber;
 
 @EverythingIsNonNull
 public class OrdersController {
 
+    public static final String SHARED_PREFERENCES_ORDERS = "orders";
+    public static final int REQUESTS_INTERVAL = 5;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
-    private final String courierUuid;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
-    private final MainActivity mainActivity;
+    private final Observable<Order> orderObservable;
+    private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
     @Nullable
     private Order incomingOrder;
 
     public OrdersController(String courierUuid, MainActivity mainActivity) {
-        this.courierUuid = courierUuid;
-        this.mainActivity = mainActivity;
+        orderObservable = Observable.interval(1, REQUESTS_INTERVAL, TimeUnit.SECONDS)
+                .doOnNext(aLong -> Timber.i("Timer works!"))
+                .flatMapSingle(aLong -> serverApi.getOrderWithID(courierUuid))
+                .doOnError(Throwable::printStackTrace)
+                .map(stringOrderMap -> stringOrderMap.get(courierUuid))
+                .doOnNext(order -> incomingOrder = order);
+        sharedPreferencesHelper = new SharedPreferencesHelper<>(mainActivity, Order.class);
     }
 
-    public ArrayList<Order> getAcceptOrderList() {
+    public ArrayList<Order> getAcceptedOrders() {
         return acceptedOrders;
     }
 
-    @Nullable
-    public Order getIncomingOrder() {
-        return incomingOrder;
-    }
-
     public void acceptOrder() {
-        acceptedOrders.add(incomingOrder);
+        if (incomingOrder != null) {
+            acceptedOrders.add(incomingOrder);
+        }
         incomingOrder = null;
-        mainActivity.updateView();
     }
 
     public void denyOrder() {
         incomingOrder = null;
-        mainActivity.updateView();
     }
 
-    public void startChecking() {
-        Observable.interval(1, 5, TimeUnit.SECONDS)
-                .flatMapSingle(aLong -> serverApi.getOrderWithID(courierUuid))
-                .to(autoDisposable(AndroidLifecycleScopeProvider.from(mainActivity)))
-                .subscribe(stringOrderMap -> {
-                    incomingOrder = stringOrderMap.get(courierUuid);
-                    mainActivity.updateView();
-                }, Throwable::printStackTrace);
+    public void onDestroy() {
+        sharedPreferencesHelper.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
+    }
+
+    public Observable<Order> getOrderObservable() {
+        return orderObservable;
     }
 }

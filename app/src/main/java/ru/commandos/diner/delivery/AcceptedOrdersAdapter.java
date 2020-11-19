@@ -32,11 +32,10 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
     @Override
     public void onBindViewHolder(@NonNull AcceptedOrderHolder holder, int position) {
         Order order = orders.get(position);
-
-        holder.binding.foodItems.setText(activity.getActualStringFood(order));
+        holder.binding.foodItems.setText(activity.getReadableContent(order));
         holder.binding.orderUuid.setText(order.getUuid());
-        holder.binding.foodFeatures.setText(activity.getActualStringFeatures(order));
-        holder.binding.foodMass.setText(String.format("%s кг", activity.getActualStringMass(order)));
+        holder.binding.foodFeatures.setText(activity.getRadableFeatures(order));
+        holder.binding.foodMass.setText(String.format("%s кг", activity.getReadableMass(order)));
     }
 
     @Override
