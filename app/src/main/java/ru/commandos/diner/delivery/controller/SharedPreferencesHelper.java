@@ -1,4 +1,4 @@
-package ru.commandos.diner.delivery;
+package ru.commandos.diner.delivery.controller;
 
 import android.content.Context;
 import android.content.SharedPreferences;
