@@ -18,19 +18,20 @@ import ru.commandos.diner.delivery.model.OrderItems;
 class ServerMock implements ServerApi {
 
     private Order getRandomOrder() {
+        Random random = new Random();
         ArrayList<Item> items = new ArrayList<>();
-        for (int i = 0; i < new Random().nextInt(4) + 1; i++) {
-            String name = OrderItems.values()[new Random().nextInt(OrderItems.values().length)]
+        for (int i = 0; i < random.nextInt(4) + 1; i++) {
+            String name = OrderItems.values()[random.nextInt(OrderItems.values().length)]
                     .toString();
-            float mass = new Random().nextInt(4) + 0.99f;
-            Feature[] features = new Feature[new Random().nextInt(3)];
+            float mass = random.nextInt(4) + 0.99f;
+            Feature[] features = new Feature[random.nextInt(3)];
             ArrayList<Feature> array = new ArrayList<>(Arrays.asList(Feature.values()));
             for (int j = 0; j < features.length; j++) {
-                features[j] = array.remove(new Random().nextInt(array.size()));
+                features[j] = array.remove(random.nextInt(array.size()));
             }
             items.add(new Item(name, mass, features));
         }
-        return new Order(UUID.randomUUID(), items);
+        return new Order(UUID.randomUUID().toString(), items);
     }
 
     @Override

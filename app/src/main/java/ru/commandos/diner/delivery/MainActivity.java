@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import ru.commandos.diner.delivery.controller.OrderAcceptingController;
+import ru.commandos.diner.delivery.controller.OrdersController;
 import ru.commandos.diner.delivery.databinding.ActivityMainBinding;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Order;
@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public ActivityMainBinding binding;
     public AcceptedOrdersAdapter adapter;
     public ArrayList<Order> orders;
-    public Order currentOrder;
-    public OrderAcceptingController controller;
+    public Order incomingOrder;
+    public OrdersController controller;
     public SharedPreferencesHelper<Order> sharedPreferencesHelper;
 
     @Override
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             orders = new ArrayList<>();
         }
 
-        currentOrder = sharedPreferencesHelper.getModel(nameForSharedPreferencesHelperOrder);
+        incomingOrder = sharedPreferencesHelper.getModel(nameForSharedPreferencesHelperOrder);
 
         super.onCreate(savedInstanceState);
 
@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        controller = new OrderAcceptingController("df307a18-1b66-432a-8011-39b68397d000", compositeDisposable, this);
-        controller.check();
+        controller = new OrdersController("df307a18-1b66-432a-8011-39b68397d000", this);
+        controller.startChecking();
 
         binding.recyclerViewAcceptedOrders.setHasFixedSize(true);
         binding.recyclerViewAcceptedOrders.setLayoutManager(new LinearLayoutManager(this));
 
-        currentOrder = controller.getAcceptableOrder();
+        incomingOrder = controller.getIncomingOrder();
 
         adapter = new AcceptedOrdersAdapter(this, orders);
         binding.recyclerViewAcceptedOrders.setAdapter(adapter);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
-        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
+        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, incomingOrder);
         compositeDisposable.dispose();
     }
 
@@ -101,15 +101,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateView() {
-        currentOrder = controller.getAcceptableOrder();
-        if (currentOrder == null) {
+        incomingOrder = controller.getIncomingOrder();
+        if (incomingOrder == null) {
             makeButtonsDisabled();
         } else {
-            String mass = getActualStringMass(currentOrder) + " кг";
+            String mass = getActualStringMass(incomingOrder) + " кг";
             runOnUiThread(() -> {
-                binding.textViewCurrentUUID.setText(currentOrder.uuid);
-                binding.textViewCurrentFood.setText(getActualStringFood(currentOrder));
-                binding.textViewCurrentFeatures.setText(getActualStringFeatures(currentOrder));
+                binding.textViewCurrentUUID.setText(incomingOrder.getUuid());
+                binding.textViewCurrentFood.setText(getActualStringFood(incomingOrder));
+                binding.textViewCurrentFeatures.setText(getActualStringFeatures(incomingOrder));
                 binding.textViewCurrentMass.setText(mass);
 
                 binding.textViewContent.setText("Содержимое: ");
@@ -152,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void collapseInfoAboutCurrentOrder() {
-
         runOnUiThread(() -> {
             binding.textViewWarn.setText("У вас нет новых заказов");
             binding.textViewOrder.setText("");
@@ -166,39 +165,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getActualStringMass(Order order) {
-//        float m = 0;
-//        for (int i = 0; i < order.items.size(); i++) {
-//            m += order.items.get(i).mass;
+//        if (order.items != null) {
+            return String.valueOf(order.getItems().stream().mapToLong(value ->
+                    (long) value.getMass()).sum());
+//        } else {
+//            return "NULL";
 //        }
-//        return String.valueOf(m);
-        if (order.items != null) {
-            return String.valueOf(order.items.stream().mapToLong(value -> (long) value.mass).sum());
-        } else {
-            return "NULL";
-        }
     }
 
     public String getActualStringFood(Order order) {
-        if (order.items != null) {
-            StringBuilder food = new StringBuilder(order.items.get(0).name);
-            for (int i = 1; i < order.items.size(); i++) {
+//        if (order.items != null) {
+            StringBuilder food = new StringBuilder(order.getItems().get(0).getName());
+            for (int i = 1; i < order.getItems().size(); i++) {
                 food.append(", ");
-                String c = order.items.get(i).name;
+                String c = order.getItems().get(i).getName();
                 c = c.toLowerCase();
                 food.append(c);
             }
             return String.valueOf(food);
-        } else {
-            return "NULL";
-        }
+//        } else {
+//            return "NULL";
+//        }
     }
 
     public String getActualStringFeatures(Order order) {
         String features = "";
         HashSet<Feature> h = new HashSet<>(3);
-        if (order.items != null) {
-            for (int i = 0; i < order.items.size(); i++)
-                Collections.addAll(h, order.items.get(i).features);
+//        if (order.items != null) {
+            for (int i = 0; i < order.getItems().size(); i++)
+                Collections.addAll(h, order.getItems().get(i).getFeatures());
             if (h.contains(Feature.LIQUID)) features = "Есть жидкости";
             if (h.contains(Feature.SHOULD_BE_COLD))
                 if (features.equals("")) features = "Должно быть холодным";
@@ -206,17 +201,17 @@ public class MainActivity extends AppCompatActivity {
             if (h.contains(Feature.SHOULD_BE_HOT))
                 if (features.equals("")) features = "";
                 else features += ", должно быть горячим";
-            if (features == "")
+            if (features.equals(""))
                 return "Нет особенностей";
             else
                 return features += "!";
-        } else {
-            return "NULL";
-        }
+//        } else {
+//            return "NULL";
+//        }
     }
 
     public void showNotificationAboutCurrentOrder() {
-        if (currentOrder != null) {
+        if (incomingOrder != null) {
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -228,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                     new NotificationCompat.Builder(this, "DELIVERY_CHANNEL_ID")
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("У вас новый заказ!")
-                            .setContentText(getActualStringFeatures(currentOrder) + " " + getActualStringMass(currentOrder) + " кг")
+                            .setContentText(getActualStringFeatures(incomingOrder) + " " + getActualStringMass(incomingOrder) + " кг")
                             .setContentIntent(resultPendingIntent);
 
             Notification notification = builder.build();
@@ -240,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         sharedPreferencesHelper.saveModelsArrayList(nameForSharedPreferencesHelperOrders, orders);
-        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, currentOrder);
+        sharedPreferencesHelper.saveModel(nameForSharedPreferencesHelperOrder, incomingOrder);
     }
 
     @Override
@@ -251,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
             orders = new ArrayList<>();
         }
 
-        currentOrder = controller.getAcceptableOrder();
+        incomingOrder = controller.getIncomingOrder();
         updateView();
     }
 
@@ -265,8 +260,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            if (controller.getAcceptableOrder() != null) {
-                controller.acceptAcceptableOrder();
+            if (controller.getIncomingOrder() != null) {
+                controller.acceptOrder();
                 updateView();
             }
             makeButtonsDisabled();
@@ -279,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            controller.denyAcceptableOrder();
+            controller.denyOrder();
             updateView();
             makeButtonsDisabled();
             collapseInfoAboutCurrentOrder();

@@ -13,8 +13,8 @@ import ru.commandos.diner.delivery.model.Order;
 
 public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHolder> {
 
-    ArrayList<Order> orders;
-    MainActivity activity;
+    private final ArrayList<Order> orders;
+    private final MainActivity activity;
 
     public AcceptedOrdersAdapter(MainActivity activity, ArrayList<Order> orders) {
         this.orders = orders;
@@ -32,12 +32,11 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrderHol
     @Override
     public void onBindViewHolder(@NonNull AcceptedOrderHolder holder, int position) {
         Order order = orders.get(position);
-        String uuid = order.uuid;
 
         holder.binding.foodItems.setText(activity.getActualStringFood(order));
-        holder.binding.orderUuid.setText(uuid);
+        holder.binding.orderUuid.setText(order.getUuid());
         holder.binding.foodFeatures.setText(activity.getActualStringFeatures(order));
-        holder.binding.foodMass.setText(activity.getActualStringMass(order) + " кг");
+        holder.binding.foodMass.setText(String.format("%s кг", activity.getActualStringMass(order)));
     }
 
     @Override

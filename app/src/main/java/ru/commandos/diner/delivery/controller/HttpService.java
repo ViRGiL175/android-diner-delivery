@@ -11,21 +11,19 @@ import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.BuildConfig;
 
 @EverythingIsNonNull
-public class CourierService {
+public class HttpService {
 
     private static final String BASE_URL = "http://10.0.2.2:8080";
     @Nullable
-    private static CourierService courierService;
+    private static HttpService httpService;
     private final Retrofit retrofit;
 
-    private CourierService() {
-
+    private HttpService() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = UnsafeOkHttpClient.getUnsafeOkHttpClientBuilder()
                 .addInterceptor(interceptor)
                 .build();
-
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(client)
@@ -34,11 +32,11 @@ public class CourierService {
                 .build();
     }
 
-    public static CourierService getInstance() {
-        if (courierService == null) {
-            courierService = new CourierService();
+    public static HttpService getInstance() {
+        if (httpService == null) {
+            httpService = new HttpService();
         }
-        return courierService;
+        return httpService;
     }
 
     public ServerApi getServerApi() {
