@@ -1,4 +1,4 @@
-package ru.commandos.diner.delivery.view;
+package ru.commandos.diner.delivery.controller;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,15 +15,16 @@ import androidx.core.app.NotificationCompat;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.R;
 import ru.commandos.diner.delivery.model.Order;
+import ru.commandos.diner.delivery.view.MainActivity;
 
 @EverythingIsNonNull
-public class IncomingOrderNotificationController {
+public class OrderNotificationController {
 
     public static final int NOTIFICATION_ID = 1;
     private final MainActivity mainActivity;
     private final Context context;
 
-    public IncomingOrderNotificationController(MainActivity mainActivity, Context context) {
+    public OrderNotificationController(MainActivity mainActivity, Context context) {
         this.mainActivity = mainActivity;
         this.context = context;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -45,6 +46,14 @@ public class IncomingOrderNotificationController {
                         .setContentIntent(resultPendingIntent);
         Notification notification = builder.build();
         notificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
+    public void showIncomingOrder(Order order) {
+        if (order != null) {
+            showIncomingOrderNotification(order);
+        } else {
+            deleteNotification();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

@@ -6,6 +6,6 @@ import retrofit2.internal.EverythingIsNonNull;
 abstract class BaseApiModel {
 
     protected String getNull() {
-        return "NUll PAI Response";
+        return "NUll API Response";
     }
 }

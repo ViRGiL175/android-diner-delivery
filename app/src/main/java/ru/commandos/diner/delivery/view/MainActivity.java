@@ -9,13 +9,14 @@ import com.jakewharton.rxbinding4.view.RxView;
 import autodispose2.AutoDispose;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import kotlin.Unit;
+import ru.commandos.diner.delivery.controller.OrderNotificationController;
 import ru.commandos.diner.delivery.controller.OrdersController;
 import ru.commandos.diner.delivery.databinding.MainActivityBinding;
 
 public class MainActivity extends AppCompatActivity {
 
     OrdersController ordersController;
-    IncomingOrderNotificationController incomingOrderNotificationController;
+    OrderNotificationController orderNotificationController;
     MainActivityBinding binding;
 
     @Override
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         ordersController = new OrdersController("df307a18-1b66-432a-8011-39b68397d000", this);
         binding.recyclerView.setOrders(ordersController.getAcceptedOrders());
 
-        incomingOrderNotificationController = new IncomingOrderNotificationController(this, this);
+        orderNotificationController = new OrderNotificationController(this, this);
 
         RxView.clicks(binding.cardView.getBinding().incomingAcceptButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
@@ -38,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(order -> binding.cardView.showIncomingOrder(order));
+        ordersController.getIncomingOrderObservable()
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(order -> orderNotificationController.showIncomingOrder(order));
     }
 
     @Override

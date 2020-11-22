@@ -35,12 +35,14 @@ public class Order extends BaseApiModel {
     }
 
     public String getReadableMass() {
-        return getItems().stream().mapToLong(value ->
-                (long) value.getMass()).sum() + " кг";
+        return getItems().stream()
+                .mapToLong(value -> (long) value.getMass())
+                .sum() + " кг";
     }
 
     public String getReadableContent() {
-        return getItems().stream().map(Item::getName)
+        return getItems().stream()
+                .map(Item::getName)
                 .collect(Collectors.joining(", "));
     }
 
@@ -50,7 +52,8 @@ public class Order extends BaseApiModel {
             put(Feature.SHOULD_BE_COLD, "должно быть холодным");
             put(Feature.SHOULD_BE_HOT, "должно быть горячим");
         }};
-        String result = getItems().stream().flatMap(item -> Arrays.stream(item.getFeatures()))
+        String result = getItems().stream()
+                .flatMap(item -> Arrays.stream(item.getFeatures()))
                 .distinct()
                 .map(readableFeatures::get)
                 .collect(Collectors.joining(", "));

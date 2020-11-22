@@ -10,15 +10,14 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
 import retrofit2.internal.EverythingIsNonNull;
-import ru.commandos.diner.delivery.controller.ActivityGetter;
 import ru.commandos.diner.delivery.databinding.IncomingOrderBinding;
 import ru.commandos.diner.delivery.model.Order;
 
 @EverythingIsNonNull
 public class IncomingOrderCardView extends CardView {
 
+    @Nullable
     private IncomingOrderBinding binding;
-    private MainActivity mainActivity;
 
     public IncomingOrderCardView(@NonNull Context context) {
         super(context);
@@ -32,6 +31,7 @@ public class IncomingOrderCardView extends CardView {
         super(context, attrs, defStyleAttr);
     }
 
+    @Nullable
     public IncomingOrderBinding getBinding() {
         return binding;
     }
@@ -40,7 +40,6 @@ public class IncomingOrderCardView extends CardView {
     protected void onFinishInflate() {
         super.onFinishInflate();
         binding = IncomingOrderBinding.inflate(LayoutInflater.from(getContext()), this, true);
-        mainActivity = (MainActivity) ActivityGetter.getActivity(this);
     }
 
     private int goneVisibility(boolean visibility) {
@@ -50,7 +49,6 @@ public class IncomingOrderCardView extends CardView {
     public void showIncomingOrder(@Nullable Order order) {
         setIncomingOrderViewsVisibility(order != null);
         if (order != null) {
-            mainActivity.incomingOrderNotificationController.showIncomingOrderNotification(order);
             post(() -> {
                 binding.incomingOrderWarning.setText("Новый заказ!");
                 binding.incomingUuid.setText(order.getUuid());
@@ -60,7 +58,6 @@ public class IncomingOrderCardView extends CardView {
             });
         } else {
             post(() -> binding.incomingOrderWarning.setText("Ожидайте новый заказ..."));
-            mainActivity.incomingOrderNotificationController.deleteNotification();
         }
     }
 

@@ -47,7 +47,7 @@ public class OrdersController {
     }
 
     public void onResume() {
-        Optional.ofNullable(acceptedOrders).ifPresent(ArrayList::clear);
+        acceptedOrders.clear();
         acceptedOrders.addAll(Optional.ofNullable(sharedPreferencesHelper
                 .getModelsArrayList(SHARED_PREFERENCES_ORDERS)).orElse(new ArrayList<>()));
     }
