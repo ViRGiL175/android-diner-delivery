@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import ru.commandos.model.DeliveryStatus;
 import ru.commandos.model.Order;
@@ -22,7 +24,6 @@ public class DeliveryController {
 
     public DeliveryController(@Autowired DeliveryService deliveryService) {
         this.deliveryService = deliveryService;
-        deliveryService.generateOrder();
     }
 
     @GetMapping("/hello")
@@ -30,33 +31,42 @@ public class DeliveryController {
         return String.format("Hello %s!", name);
     }
 
-    @GetMapping("/orders")
-    public Map<UUID, Order> orders(@RequestParam UUID courierUuid) {
-        return deliveryService.getPreparedOrders();
+    @GetMapping("/check")
+    public Map<UUID, Order> check(@RequestParam UUID courierUuid) {
+        return deliveryService.getPreparedOrders().entrySet().stream()
+                .filter(uuidOrderEntry -> uuidOrderEntry.getKey().equals(courierUuid))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @GetMapping("/status")
+    public List<OrderDelivery> status(@RequestParam UUID courierUuid) {
+        return deliveryService.getWorkingOrders().stream()
+                .filter(orderDelivery -> orderDelivery.courierUuid.equals(courierUuid))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/accept")
     public void accept(@RequestParam UUID courierUuid, @RequestParam UUID orderUuid) {
-        deliveryService.getWorkingOrders().put(orderUuid, new OrderDelivery(deliveryService.getPreparedOrders().get(orderUuid),
-                courierUuid, DeliveryStatus.PICKING_ORDER));
+        deliveryService.getWorkingOrders().add(new OrderDelivery(deliveryService.getPreparedOrders()
+                .get(orderUuid), courierUuid, DeliveryStatus.PICKING_ORDER));
         deliveryService.getPreparedOrders().remove(orderUuid);
     }
 
     @GetMapping("/pick_from_diner")
     public void pick_from_diner(@RequestParam UUID courierUuid, @RequestParam UUID orderUuid) {
-        deliveryService.getWorkingOrders().put(orderUuid, new OrderDelivery(deliveryService.getPreparedOrders().get(orderUuid),
-                courierUuid, DeliveryStatus.DELIVERY_TO_CLIENT));
+        deliveryService.getWorkingOrders().add(new OrderDelivery(deliveryService.getPreparedOrders()
+                .get(orderUuid), courierUuid, DeliveryStatus.DELIVERY_TO_CLIENT));
     }
 
     @GetMapping("/delivery_handshake")
     public void delivery_handshake(@RequestParam UUID courierUuid, @RequestParam UUID orderUuid) {
-        deliveryService.getWorkingOrders().put(orderUuid, new OrderDelivery(deliveryService.getPreparedOrders().get(orderUuid),
-                courierUuid, DeliveryStatus.COMPLETED));
+        deliveryService.getWorkingOrders().add(new OrderDelivery(deliveryService.getPreparedOrders()
+                .get(orderUuid), courierUuid, DeliveryStatus.COMPLETED));
     }
 
     @GetMapping("/courier_broken")
     public void courier_broken(@RequestParam UUID courierUuid, @RequestParam UUID orderUuid) {
-        deliveryService.getWorkingOrders().put(orderUuid, new OrderDelivery(deliveryService.getPreparedOrders().get(orderUuid),
-                courierUuid, DeliveryStatus.BROKEN));
+        deliveryService.getWorkingOrders().add(new OrderDelivery(deliveryService.getPreparedOrders()
+                .get(orderUuid), courierUuid, DeliveryStatus.BROKEN));
     }
 }
