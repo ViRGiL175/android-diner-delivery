@@ -25,9 +25,8 @@ public class OrdersController {
 
     public OrdersController(String courierUuid, MainActivity mainActivity) {
         incomingOrderObservable = Observable.interval(1, REQUESTS_INTERVAL, TimeUnit.SECONDS)
-                .flatMapSingle(aLong -> serverApi.getOrderWithID(courierUuid))
+                .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
                 .doOnError(Throwable::printStackTrace)
-                .map(stringOrderMap -> stringOrderMap.get(courierUuid))
                 .doOnNext(order -> incomingOrder = order);
         sharedPreferencesHelper = new SharedPreferencesHelper<>(mainActivity, Order.class);
         onResume();
