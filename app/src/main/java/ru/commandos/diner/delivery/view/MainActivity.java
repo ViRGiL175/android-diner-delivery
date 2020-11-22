@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(this::onDenyClick);
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(order -> binding.cardView.showIncomingOrder(order));
+                .subscribe(response -> binding.cardView.showIncomingOrder(response.body()));
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(order -> orderNotificationController.showIncomingOrder(order));
+                .subscribe(response -> orderNotificationController.showIncomingOrder(response.body()));
     }
 
     @Override
