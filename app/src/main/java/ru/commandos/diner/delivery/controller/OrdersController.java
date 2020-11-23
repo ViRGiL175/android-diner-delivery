@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import autodispose2.AutoDispose;
+import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import retrofit2.Response;
@@ -24,7 +26,6 @@ public class OrdersController {
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     @Nullable
     private Order incomingOrder;
 
@@ -61,7 +62,9 @@ public class OrdersController {
 
     public void acceptOrder() {
         Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    compositeDisposable.add(serverApi.acceptOrder(courierUuid, order.getUuid()).doOnComplete(compositeDisposable::dispose).subscribe(this::updateOrderList));
+                    serverApi.acceptOrder(courierUuid, order.getUuid())
+                            .to(AutoDispose.autoDisposable(CompletableObserver::onComplete))
+                            .subscribe(this::updateOrderList);
                     acceptedOrders.add(order);
                 }
         );
@@ -70,7 +73,10 @@ public class OrdersController {
 
     public void denyOrder() {
         Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    compositeDisposable.add(serverApi.denyOrder(courierUuid, order.getUuid()).doOnComplete(compositeDisposable::dispose).subscribe(this::updateOrderList));
+                    serverApi.denyOrder(courierUuid, order.getUuid())
+                            .to(AutoDispose.autoDisposable(CompletableObserver::onComplete))
+                            .subscribe(this::updateOrderList);
+                    acceptedOrders.add(order);
                 }
         );
         incomingOrder = null;
