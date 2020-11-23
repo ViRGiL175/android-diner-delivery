@@ -3,11 +3,11 @@ package ru.commandos.diner.delivery.controller;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.model.Order;
@@ -17,12 +17,14 @@ import ru.commandos.diner.delivery.view.MainActivity;
 public class OrdersController {
 
     public static final String SHARED_PREFERENCES_ORDERS = "orders";
-    public static final int REQUESTS_INTERVAL = 5;
+    public static final int REQUESTS_INCOMING_ORDER_INTERVAL = 5;
+    public static final int REQUEST_UPDATE_LIST_INTERVAL = 15;
     private final Observable<Response<Order>> incomingOrderObservable;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     @Nullable
     private Order incomingOrder;
 
@@ -43,10 +45,12 @@ public class OrdersController {
 
     public OrdersController(String courierUuid, MainActivity mainActivity) {
         this.courierUuid = courierUuid;
-        incomingOrderObservable = Observable.interval(1, REQUESTS_INTERVAL, TimeUnit.SECONDS)
+        incomingOrderObservable = Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
                 .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
                 .doOnError(Throwable::printStackTrace)
                 .doOnNext(this::setIncomingOrder);
+        Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
+                .doOnNext(aLong -> updateOrderList()).subscribe();
         sharedPreferencesHelper = new SharedPreferencesHelper<>(mainActivity, Order.class);
         onResume();
     }
@@ -57,7 +61,7 @@ public class OrdersController {
 
     public void acceptOrder() {
         Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    serverApi.acceptOrder(courierUuid, order.getUuid()).subscribe(this::updateOrderList).dispose();
+                    compositeDisposable.add(serverApi.acceptOrder(courierUuid, order.getUuid()).doOnComplete(compositeDisposable::dispose).subscribe(this::updateOrderList));
                     acceptedOrders.add(order);
                 }
         );
@@ -66,7 +70,7 @@ public class OrdersController {
 
     public void denyOrder() {
         Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    serverApi.denyOrder(courierUuid, order.getUuid()).subscribe(this::updateOrderList).dispose();
+                    compositeDisposable.add(serverApi.denyOrder(courierUuid, order.getUuid()).doOnComplete(compositeDisposable::dispose).subscribe(this::updateOrderList));
                 }
         );
         incomingOrder = null;
