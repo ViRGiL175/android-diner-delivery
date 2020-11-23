@@ -59,11 +59,13 @@ public class MainActivity extends AppCompatActivity {
     private void onDenyClick(Unit unit) {
         ordersController.denyOrder();
         binding.cardView.showIncomingOrder(null);
+        orderNotificationController.deleteNotification();
     }
 
     private void onAcceptClick(Unit unit) {
         ordersController.acceptOrder();
         binding.recyclerView.getAdapter().notifyDataSetChanged();
         binding.cardView.showIncomingOrder(null);
+        orderNotificationController.deleteNotification();
     }
 }
