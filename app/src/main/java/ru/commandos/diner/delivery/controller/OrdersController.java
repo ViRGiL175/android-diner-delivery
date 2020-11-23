@@ -53,15 +53,14 @@ public class OrdersController {
         onResume();
     }
 
-    private void assignIncomingOrder(Order response) {
-        incomingOrder = response;
+    private void assignIncomingOrder(Order order) {
+        incomingOrder = order;
     }
 
-    private void assignAcceptedOrders(List<Order> listResponse) {
+    private void assignAcceptedOrders(List<Order> orders) {
         acceptedOrders.clear();
-        acceptedOrders.addAll(listResponse);
-        Timber.e("Assigning!");
-        acceptedOrdersPublishSubject.onNext(listResponse);
+        acceptedOrders.addAll(orders);
+        acceptedOrdersPublishSubject.onNext(orders);
     }
 
     public void acceptOrder() {
