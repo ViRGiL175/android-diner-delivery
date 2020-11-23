@@ -34,7 +34,7 @@ public class OrdersController {
 
     private void updateOrderList() {
         serverApi.getAllOrders(courierUuid).doOnSuccess(listResponse -> {
-            if (listResponse.isSuccessful()) {
+            if (listResponse.isSuccessful() && listResponse.body() != null) {
                 acceptedOrders.clear();
                 acceptedOrders.addAll(new ArrayList<>(listResponse.body()));
             }
@@ -56,15 +56,19 @@ public class OrdersController {
     }
 
     public void acceptOrder() {
-        serverApi.acceptOrder(courierUuid, incomingOrder.getUuid()).subscribe(() -> {}).dispose();
-        Optional.ofNullable(incomingOrder).ifPresent(acceptedOrders::add);
-        updateOrderList();
+        Optional.ofNullable(incomingOrder).ifPresent(order -> {
+                    serverApi.acceptOrder(courierUuid, order.getUuid()).subscribe(this::updateOrderList).dispose();
+                    acceptedOrders.add(order);
+                }
+        );
         incomingOrder = null;
     }
 
     public void denyOrder() {
-        serverApi.denyOrder(courierUuid, incomingOrder.getUuid()).subscribe(() -> {}).dispose();
-        updateOrderList();
+        Optional.ofNullable(incomingOrder).ifPresent(order -> {
+                    serverApi.denyOrder(courierUuid, order.getUuid()).subscribe(this::updateOrderList).dispose();
+                }
+        );
         incomingOrder = null;
     }
 
