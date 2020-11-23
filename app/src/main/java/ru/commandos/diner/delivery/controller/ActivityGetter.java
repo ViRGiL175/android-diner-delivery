@@ -5,22 +5,21 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.view.View;
 
-import androidx.annotation.Nullable;
+import java.util.Optional;
 
 import retrofit2.internal.EverythingIsNonNull;
 
 @EverythingIsNonNull
 public class ActivityGetter {
 
-    @Nullable
-    public static Activity getActivity(View view) {
+    public static Optional<Activity> getActivity(View view) {
         Context context = view.getContext();
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
-                return (Activity) context;
+                return Optional.of((Activity) context);
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
-        return null;
+        return Optional.empty();
     }
 }

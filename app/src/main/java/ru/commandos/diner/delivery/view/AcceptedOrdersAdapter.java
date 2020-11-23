@@ -1,5 +1,6 @@
 package ru.commandos.diner.delivery.view;
 
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -22,7 +23,8 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<
     @NonNull
     @Override
     public AcceptedOrderHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = ActivityGetter.getActivity(parent).getLayoutInflater();
+        LayoutInflater layoutInflater = ActivityGetter.getActivity(parent)
+                .orElseThrow(InflateException::new).getLayoutInflater();
         AcceptedOrderBinding binding = AcceptedOrderBinding.inflate(layoutInflater, parent, false);
         return new AcceptedOrderHolder(binding);
     }

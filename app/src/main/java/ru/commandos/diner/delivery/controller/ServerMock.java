@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
-import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Item;
@@ -22,6 +21,10 @@ class ServerMock implements ServerApi {
     public static final int SERVER_DELAY = 3;
 
     private final List<Order> orders = new ArrayList<>();
+
+    {
+        orders.add(getRandomOrder());
+    }
 
     private Order getRandomOrder() {
         return getRandomOrder(UUID.randomUUID());
@@ -45,13 +48,13 @@ class ServerMock implements ServerApi {
     }
 
     @Override
-    public Single<Response<Order>> getIncomingOrder(String courierUuid) {
-        return Single.just(Response.success(getRandomOrder())).delay(SERVER_DELAY, TimeUnit.SECONDS);
+    public Single<Order> getIncomingOrder(String courierUuid) {
+        return Single.just(getRandomOrder()).delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
-    public Single<Response<List<Order>>> getAllOrders(String courierUuid) {
-        return Single.just(Response.success(orders)).delay(SERVER_DELAY, TimeUnit.SECONDS);
+    public Single<List<Order>> getAllOrders(String courierUuid) {
+        return Single.just(orders).delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
