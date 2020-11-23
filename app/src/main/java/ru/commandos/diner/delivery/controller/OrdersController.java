@@ -26,7 +26,6 @@ public class OrdersController {
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     @Nullable
     private Order incomingOrder;
 
