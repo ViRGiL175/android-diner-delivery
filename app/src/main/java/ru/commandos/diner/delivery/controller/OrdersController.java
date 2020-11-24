@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.model.Order;
-import timber.log.Timber;
 
 import static autodispose2.AutoDispose.autoDisposable;
 
@@ -60,7 +59,6 @@ public class OrdersController {
     private void assignAcceptedOrders(List<Order> orders) {
         acceptedOrders.clear();
         acceptedOrders.addAll(orders);
-        acceptedOrdersPublishSubject.onNext(orders);
     }
 
     public void acceptOrder() {
@@ -70,7 +68,10 @@ public class OrdersController {
                         .andThen(serverApi.getAllOrders(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
-                        .subscribe(this::assignAcceptedOrders));
+                        .subscribe(orders -> {
+                            assignAcceptedOrders(orders);
+                            acceptedOrdersPublishSubject.onNext(orders);
+                        }));
     }
 
     public void denyOrder() {
@@ -80,7 +81,10 @@ public class OrdersController {
                         .andThen(serverApi.getAllOrders(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
-                        .subscribe(this::assignAcceptedOrders));
+                        .subscribe(orders -> {
+                            assignAcceptedOrders(orders);
+                            acceptedOrdersPublishSubject.onNext(orders);
+                        }));
     }
 
     public void onResume() {
