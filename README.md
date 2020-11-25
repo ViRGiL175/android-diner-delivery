@@ -1,8 +1,8 @@
 # android-diner-delivery
 
-<img align="right" height="256" src="https://user-images.githubusercontent.com/11541555/99240361-d2250d80-2815-11eb-9b96-4adabfaa1e1b.jpg">
+<img align="right" width="256" src="https://user-images.githubusercontent.com/11541555/99240361-d2250d80-2815-11eb-9b96-4adabfaa1e1b.jpg">
 
-Приложение для курьера, который доставляет еду из Дайнера и сервер для обработки заказов.
+Приложение для курьера, который доставляет еду из Дайнера, и сервер для обработки заказов.
 
 | Гитхаб | Проект | Другое |
 | ------ | ------ | ------ |
