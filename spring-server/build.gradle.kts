@@ -14,8 +14,6 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("io.reactivex.rxjava3:rxjava:3.0.6")
-    implementation("org.tinylog:tinylog-api:2.1.0")
-    implementation("org.tinylog:tinylog-impl:2.1.0")
 }
 
 tasks.test {

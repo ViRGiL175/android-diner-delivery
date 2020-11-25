@@ -1,4 +1,4 @@
-package ru.commandos.server.model;
+package ru.commandos.diner.server.model;
 
 public enum DeliveryStatus {
     PICKING_ORDER,

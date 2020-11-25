@@ -1,8 +1,8 @@
-package ru.commandos.server.controller;
+package ru.commandos.diner.server.controller;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import ru.commandos.server.model.Feature;
+import ru.commandos.diner.server.model.Feature;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 @Component
 @Scope("singleton")
-public class OrderNamesProvider {
+public class OrderNamesProvider extends BaseComponent {
 
     public final Map<String, Feature[]> orderItems;
 
     public OrderNamesProvider() {
-        orderItems = Collections.unmodifiableMap(new HashMap<String, Feature[]>() {{
+        orderItems = Collections.unmodifiableMap(new HashMap<>() {{
             put("Vodka", new Feature[]{Feature.SHOULD_BE_COLD, Feature.LIQUID});
             put("Cola", new Feature[]{Feature.LIQUID});
             put("Tea", new Feature[]{Feature.SHOULD_BE_HOT, Feature.LIQUID});

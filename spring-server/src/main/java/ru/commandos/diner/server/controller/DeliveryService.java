@@ -1,22 +1,20 @@
-package ru.commandos.server.controller;
+package ru.commandos.diner.server.controller;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tinylog.Logger;
-import ru.commandos.server.model.Feature;
-import ru.commandos.server.model.Item;
-import ru.commandos.server.model.Order;
-import ru.commandos.server.model.OrderDelivery;
+import ru.commandos.diner.server.model.Feature;
+import ru.commandos.diner.server.model.Item;
+import ru.commandos.diner.server.model.Order;
+import ru.commandos.diner.server.model.OrderDelivery;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-
 @Service
-public class DeliveryService implements DisposableBean {
+public class DeliveryService extends BaseComponent implements DisposableBean {
 
     private final OrderNamesProvider orderNamesProvider;
     private final CouriersProvider couriersProvider;
@@ -38,7 +36,7 @@ public class DeliveryService implements DisposableBean {
                 .filter(aLong -> !incomingOrders.isEmpty())
                 .doOnNext(aLong -> preparedOrders.put(couriersProvider.courierUuids.get(0),
                         incomingOrders.remove(0)))
-                .doOnNext(aLong -> Logger.trace("Assigned on " + aLong))
+                .doOnNext(aLong -> logger.info("Assigned on " + aLong))
                 .subscribe();
     }
 
@@ -64,7 +62,7 @@ public class DeliveryService implements DisposableBean {
                         order.items.add(item);
                     }
                     incomingOrders.add(order);
-                    Logger.trace("Generated with " + order.items.size() + " items");
+                    logger.info("Generated with " + order.items.size() + " items");
                 })
                 .subscribe();
     }

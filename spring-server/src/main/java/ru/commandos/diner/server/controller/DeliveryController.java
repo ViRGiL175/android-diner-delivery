@@ -1,14 +1,13 @@
-package ru.commandos.server.controller;
-
+package ru.commandos.diner.server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.commandos.server.model.DeliveryStatus;
-import ru.commandos.server.model.Order;
-import ru.commandos.server.model.OrderDelivery;
+import ru.commandos.diner.server.model.DeliveryStatus;
+import ru.commandos.diner.server.model.Order;
+import ru.commandos.diner.server.model.OrderDelivery;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/delivery")
-public class DeliveryController {
+public class DeliveryController extends BaseComponent {
 
     private final DeliveryService deliveryService;
 

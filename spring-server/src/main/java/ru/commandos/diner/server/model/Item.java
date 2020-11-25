@@ -1,4 +1,4 @@
-package ru.commandos.server.model;
+package ru.commandos.diner.server.model;
 
 import java.util.Arrays;
 

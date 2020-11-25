@@ -1,4 +1,4 @@
-package ru.commandos.server.controller;
+package ru.commandos.diner.server.controller;
 
 import org.springframework.stereotype.Component;
 
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class CouriersProvider {
+public class CouriersProvider extends BaseComponent {
 
     public final List<UUID> courierUuids = new ArrayList<>();
 
