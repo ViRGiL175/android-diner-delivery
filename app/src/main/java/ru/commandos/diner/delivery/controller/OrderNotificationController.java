@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
@@ -42,13 +43,13 @@ public class OrderNotificationController {
                 new NotificationCompat.Builder(context, "DELIVERY_CHANNEL_ID")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("У вас новый заказ!")
-                        .setContentText(order.getReadableFeatures() + " " + order.getReadableMass() + " кг")
+                        .setContentText(order.getReadableFeatures() + " " + order.getReadableMass())
                         .setContentIntent(resultPendingIntent);
         Notification notification = builder.build();
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    public void showIncomingOrder(Order order) {
+    public void showIncomingOrder(@Nullable Order order) {
         if (order != null) {
             showIncomingOrderNotification(order);
         } else {

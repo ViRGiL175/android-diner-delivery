@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Optional;
 
 import ru.commandos.diner.delivery.model.Order;
 
@@ -31,11 +32,21 @@ public class AcceptedOrdersRecyclerView extends RecyclerView {
         super.onFinishInflate();
         setHasFixedSize(true);
         setLayoutManager(new LinearLayoutManager(getContext()));
-        AcceptedOrdersAdapter adapter = new AcceptedOrdersAdapter();
-        setAdapter(adapter);
+        setAdapter(getAdapter());
     }
 
     public void setOrders(List<Order> orders) {
-        ((AcceptedOrdersAdapter) getAdapter()).setOrders(orders);
+        getAdapter().setOrders(orders);
+    }
+
+    @Override
+    @NonNull
+    public AcceptedOrdersAdapter getAdapter() {
+        return Optional.ofNullable(((AcceptedOrdersAdapter) super.getAdapter()))
+                .orElseGet(() -> {
+                    AcceptedOrdersAdapter adapter = new AcceptedOrdersAdapter();
+                    setAdapter(adapter);
+                    return adapter;
+                });
     }
 }

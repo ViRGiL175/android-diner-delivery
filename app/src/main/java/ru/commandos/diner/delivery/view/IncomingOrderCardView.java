@@ -2,12 +2,15 @@ package ru.commandos.diner.delivery.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+
+import java.util.Optional;
 
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.databinding.IncomingOrderBinding;
@@ -31,9 +34,8 @@ public class IncomingOrderCardView extends CardView {
         super(context, attrs, defStyleAttr);
     }
 
-    @Nullable
     public IncomingOrderBinding getBinding() {
-        return binding;
+        return Optional.ofNullable(binding).orElseThrow(InflateException::new);
     }
 
     @Override
@@ -50,28 +52,28 @@ public class IncomingOrderCardView extends CardView {
         setIncomingOrderViewsVisibility(order != null);
         if (order != null) {
             post(() -> {
-                binding.incomingOrderWarning.setText("Новый заказ!");
-                binding.incomingUuid.setText(order.getUuid());
-                binding.incomingContent.setText(order.getReadableContent());
-                binding.incomingMass.setText(order.getReadableMass());
-                binding.incomingFeatures.setText(order.getReadableFeatures());
+                getBinding().incomingOrderWarning.setText("Новый заказ!");
+                getBinding().incomingUuid.setText(order.getUuid());
+                getBinding().incomingContent.setText(order.getReadableContent());
+                getBinding().incomingMass.setText(order.getReadableMass());
+                getBinding().incomingFeatures.setText(order.getReadableFeatures());
             });
         } else {
-            post(() -> binding.incomingOrderWarning.setText("Ожидайте новый заказ..."));
+            post(() -> getBinding().incomingOrderWarning.setText("Ожидайте новый заказ..."));
         }
     }
 
     public void setIncomingOrderViewsVisibility(boolean visibility) {
         post(() -> {
-            binding.incomingAcceptButton.setVisibility(goneVisibility(visibility));
-            binding.incomingDenyButton.setVisibility(goneVisibility(visibility));
-            binding.incomingUuid.setVisibility(goneVisibility(visibility));
-            binding.incomingUuidLabel.setVisibility(goneVisibility(visibility));
-            binding.incomingContent.setVisibility(goneVisibility(visibility));
-            binding.incomingContentLabel.setVisibility(goneVisibility(visibility));
-            binding.incomingFeatures.setVisibility(goneVisibility(visibility));
-            binding.incomingMass.setVisibility(goneVisibility(visibility));
-            binding.incomingMassLabel.setVisibility(goneVisibility(visibility));
+            getBinding().incomingAcceptButton.setVisibility(goneVisibility(visibility));
+            getBinding().incomingDenyButton.setVisibility(goneVisibility(visibility));
+            getBinding().incomingUuid.setVisibility(goneVisibility(visibility));
+            getBinding().incomingUuidLabel.setVisibility(goneVisibility(visibility));
+            getBinding().incomingContent.setVisibility(goneVisibility(visibility));
+            getBinding().incomingContentLabel.setVisibility(goneVisibility(visibility));
+            getBinding().incomingFeatures.setVisibility(goneVisibility(visibility));
+            getBinding().incomingMass.setVisibility(goneVisibility(visibility));
+            getBinding().incomingMassLabel.setVisibility(goneVisibility(visibility));
         });
     }
 }
