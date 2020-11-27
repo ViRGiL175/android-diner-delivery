@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
@@ -48,7 +49,7 @@ public class OrderNotificationController {
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    public void showIncomingOrder(Order order) {
+    public void showIncomingOrder(@Nullable Order order) {
         if (order != null) {
             showIncomingOrderNotification(order);
         } else {

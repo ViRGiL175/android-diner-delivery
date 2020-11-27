@@ -1,19 +1,21 @@
 package ru.commandos.diner.delivery.controller;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import autodispose2.AutoDispose;
-import io.reactivex.rxjava3.core.CompletableObserver;
+import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import retrofit2.Response;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.model.Order;
-import ru.commandos.diner.delivery.view.MainActivity;
+
+import static autodispose2.AutoDispose.autoDisposable;
 
 @EverythingIsNonNull
 public class OrdersController {
@@ -21,65 +23,68 @@ public class OrdersController {
     public static final String SHARED_PREFERENCES_ORDERS = "orders";
     public static final int REQUESTS_INCOMING_ORDER_INTERVAL = 5;
     public static final int REQUEST_UPDATE_LIST_INTERVAL = 15;
-    private final Observable<Response<Order>> incomingOrderObservable;
+    private final PublishSubject<Order> incomingOrderPublishSubject = PublishSubject.create();
+    private final Observable<Order> incomingOrderObservable;
+    private final PublishSubject<List<Order>> acceptedOrdersPublishSubject = PublishSubject.create();
+    private final Observable<List<Order>> acceptedOrdersObservable;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
+    private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
     @Nullable
     private Order incomingOrder;
 
-    private void setIncomingOrder(Response<Order> response) {
-        if (response.isSuccessful()) {
-            incomingOrder = response.body();
-        }
-    }
-
-    private void updateOrderList() {
-        serverApi.getAllOrders(courierUuid).doOnSuccess(listResponse -> {
-            if (listResponse.isSuccessful() && listResponse.body() != null) {
-                acceptedOrders.clear();
-                acceptedOrders.addAll(new ArrayList<>(listResponse.body()));
-            }
-        }).subscribe();
-    }
-
-    public OrdersController(String courierUuid, MainActivity mainActivity) {
+    public OrdersController(String courierUuid, AppCompatActivity activity) {
         this.courierUuid = courierUuid;
-        incomingOrderObservable = Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
-                .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
-                .doOnError(Throwable::printStackTrace)
-                .doOnNext(this::setIncomingOrder);
-        Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
-                .doOnNext(aLong -> updateOrderList()).subscribe();
-        sharedPreferencesHelper = new SharedPreferencesHelper<>(mainActivity, Order.class);
+        this.activity = activity;
+        incomingOrderObservable = Observable.merge(incomingOrderPublishSubject,
+                Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
+                        .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
+                        .doOnError(Throwable::printStackTrace)
+                        .doOnNext(this::assignIncomingOrder));
+        acceptedOrdersObservable = Observable.merge(acceptedOrdersPublishSubject,
+                Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
+                        .flatMapSingle(aLong -> serverApi.getAllOrders(courierUuid))
+                        .doOnError(Throwable::printStackTrace)
+                        .doOnNext(this::assignAcceptedOrders));
+        sharedPreferencesHelper = new SharedPreferencesHelper<>(activity, Order.class);
         onResume();
     }
 
-    public ArrayList<Order> getAcceptedOrders() {
-        return acceptedOrders;
+    private void assignIncomingOrder(Order order) {
+        incomingOrder = order;
+    }
+
+    private void assignAcceptedOrders(List<Order> orders) {
+        acceptedOrders.clear();
+        acceptedOrders.addAll(orders);
     }
 
     public void acceptOrder() {
-        Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    serverApi.acceptOrder(courierUuid, order.getUuid())
-                            .to(AutoDispose.autoDisposable(CompletableObserver::onComplete))
-                            .subscribe(this::updateOrderList);
-                    acceptedOrders.add(order);
-                }
-        );
-        incomingOrder = null;
+        Optional.ofNullable(incomingOrder)
+                .ifPresent(order -> serverApi.acceptOrder(courierUuid, order.getUuid())
+                        .andThen(Completable.fromAction(() -> incomingOrder = null))
+                        .andThen(serverApi.getAllOrders(courierUuid))
+                        .doOnError(Throwable::printStackTrace)
+                        .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
+                        .subscribe(orders -> {
+                            assignAcceptedOrders(orders);
+                            acceptedOrdersPublishSubject.onNext(orders);
+                        }));
     }
 
     public void denyOrder() {
-        Optional.ofNullable(incomingOrder).ifPresent(order -> {
-                    serverApi.denyOrder(courierUuid, order.getUuid())
-                            .to(AutoDispose.autoDisposable(CompletableObserver::onComplete))
-                            .subscribe(this::updateOrderList);
-                    acceptedOrders.add(order);
-                }
-        );
-        incomingOrder = null;
+        Optional.ofNullable(incomingOrder)
+                .ifPresent(order -> serverApi.denyOrder(courierUuid, order.getUuid())
+                        .andThen(Completable.fromAction(() -> incomingOrder = null))
+                        .andThen(serverApi.getAllOrders(courierUuid))
+                        .doOnError(Throwable::printStackTrace)
+                        .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
+                        .subscribe(orders -> {
+                            assignAcceptedOrders(orders);
+                            acceptedOrdersPublishSubject.onNext(orders);
+                        }));
     }
 
     public void onResume() {
@@ -92,7 +97,15 @@ public class OrdersController {
         sharedPreferencesHelper.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
     }
 
-    public Observable<Response<Order>> getIncomingOrderObservable() {
+    public Observable<List<Order>> getAcceptedOrdersObservable() {
+        return acceptedOrdersObservable;
+    }
+
+    public ArrayList<Order> getAcceptedOrders() {
+        return acceptedOrders;
+    }
+
+    public Observable<Order> getIncomingOrderObservable() {
         return incomingOrderObservable;
     }
 }

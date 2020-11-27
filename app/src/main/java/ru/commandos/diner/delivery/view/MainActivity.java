@@ -8,6 +8,7 @@ import com.jakewharton.rxbinding4.view.RxView;
 
 import autodispose2.AutoDispose;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import kotlin.Unit;
 import ru.commandos.diner.delivery.controller.OrderNotificationController;
 import ru.commandos.diner.delivery.controller.OrdersController;
@@ -38,10 +39,14 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(this::onDenyClick);
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(response -> binding.cardView.showIncomingOrder(response.body()));
+                .subscribe(order -> binding.cardView.showIncomingOrder(order));
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(response -> orderNotificationController.showIncomingOrder(response.body()));
+                .subscribe(order -> orderNotificationController.showIncomingOrder(order));
+        ordersController.getAcceptedOrdersObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
     }
 
     @Override
