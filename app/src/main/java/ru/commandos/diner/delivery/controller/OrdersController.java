@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
+import ru.commandos.diner.delivery.model.OfflineState;
 import ru.commandos.diner.delivery.model.Order;
 
 import static autodispose2.AutoDispose.autoDisposable;
@@ -21,6 +22,7 @@ import static autodispose2.AutoDispose.autoDisposable;
 public class OrdersController {
 
     public static final String SHARED_PREFERENCES_ORDERS = "orders";
+    public static final String SHARED_PREFERENCES_OFFLINE = "offline";
     public static final int REQUESTS_INCOMING_ORDER_INTERVAL = 5;
     public static final int REQUEST_UPDATE_LIST_INTERVAL = 15;
     private final PublishSubject<Order> incomingOrderPublishSubject = PublishSubject.create();
@@ -29,10 +31,12 @@ public class OrdersController {
     private final Observable<List<Order>> acceptedOrdersObservable;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
+    private final SharedPreferencesHelper<OfflineState> sharedPreferencesHelperOffline;
     private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
-    private boolean offlineMode = false;
+    private boolean offlineMode = true;
+    private OfflineState offlineState = new OfflineState();
     @Nullable
     private Order incomingOrder;
 
@@ -52,6 +56,7 @@ public class OrdersController {
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignAcceptedOrders));
         sharedPreferencesHelper = new SharedPreferencesHelper<>(activity, Order.class);
+        sharedPreferencesHelperOffline = new SharedPreferencesHelper<OfflineState>(activity, OfflineState.class);
         onResume();
     }
 
@@ -102,10 +107,17 @@ public class OrdersController {
         acceptedOrders.clear();
         acceptedOrders.addAll(Optional.ofNullable(sharedPreferencesHelper
                 .getModelsArrayList(SHARED_PREFERENCES_ORDERS)).orElse(new ArrayList<>()));
+
+        offlineState = (Optional.ofNullable(sharedPreferencesHelperOffline
+                .getModel(SHARED_PREFERENCES_OFFLINE)).orElse(new OfflineState()));
+        offlineMode = offlineState.offlineMode;
     }
 
     public void onPause() {
         sharedPreferencesHelper.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
+
+        offlineState.offlineMode = offlineMode;
+        sharedPreferencesHelperOffline.saveModel(SHARED_PREFERENCES_OFFLINE, offlineState);
     }
 
     public Observable<List<Order>> getAcceptedOrdersObservable() {
