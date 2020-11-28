@@ -42,7 +42,7 @@
 
     <com.jackandphantom.customtogglebutton.CustomToggle
         android:id="@+id/tumblerOfflineMode"
-        android:layout_width="0dp"
+        android:layout_width="100dp"
         android:layout_height="100dp"
         app:ctg_addAnimationTime="400"
         app:ctg_addAnimationType="jack_animation"
