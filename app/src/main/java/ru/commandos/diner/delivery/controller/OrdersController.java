@@ -32,6 +32,7 @@ public class OrdersController {
     private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
+    private boolean offlineMode = false;
     @Nullable
     private Order incomingOrder;
 
@@ -40,11 +41,13 @@ public class OrdersController {
         this.activity = activity;
         incomingOrderObservable = Observable.merge(incomingOrderPublishSubject,
                 Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
+                        .filter(aLong -> !offlineMode)
                         .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignIncomingOrder));
         acceptedOrdersObservable = Observable.merge(acceptedOrdersPublishSubject,
                 Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
+                        .filter(aLong -> !offlineMode)
                         .flatMapSingle(aLong -> serverApi.getAllOrders(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignAcceptedOrders));
@@ -85,6 +88,14 @@ public class OrdersController {
                             assignAcceptedOrders(orders);
                             acceptedOrdersPublishSubject.onNext(orders);
                         }));
+    }
+
+    public void enterToOfflineMode() {
+        offlineMode = true;
+    }
+
+    public void exitFromOfflineMode() {
+        offlineMode = false;
     }
 
     public void onResume() {
