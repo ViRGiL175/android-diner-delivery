@@ -76,4 +76,13 @@ public class IncomingOrderCardView extends CardView {
             getBinding().incomingMassLabel.setVisibility(goneVisibility(visibility));
         });
     }
+
+    public void enterToOfflineMode() {
+        setIncomingOrderViewsVisibility(false);
+        post(() -> getBinding().incomingOrderWarning.setText("Вы в офлайн-режиме"));
+    }
+
+    public void exitFromOfflineMode() {
+        post(() -> getBinding().incomingOrderWarning.setText("Ожидайте новый заказ..."));
+    }
 }

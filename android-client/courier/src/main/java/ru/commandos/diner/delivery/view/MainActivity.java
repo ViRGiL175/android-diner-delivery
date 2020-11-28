@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         ordersController = new OrdersController("df307a18-1b66-432a-8011-39b68397d000", this);
         binding.recyclerView.setOrders(ordersController.getAcceptedOrders());
+        binding.cardView.enterToOfflineMode();
 
         orderNotificationController = new OrderNotificationController(this, this);
 
@@ -79,8 +80,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSwitchPositionChanged(Unit unit) {
-        if (binding.switchOflline.isChecked())
+        if (binding.switchOflline.isChecked()) {
             ordersController.enterToOfflineMode();
-        else ordersController.exitFromOfflineMode();
+            binding.cardView.enterToOfflineMode();
+        } else {
+            ordersController.exitFromOfflineMode();
+            binding.cardView.exitFromOfflineMode();
+            orderNotificationController.deleteNotification();
+        }
     }
 }
