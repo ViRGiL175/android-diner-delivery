@@ -49,7 +49,7 @@ dependencies {
     implementation("com.uber.autodispose2:autodispose-androidx-lifecycle:2.0.0")
     implementation("com.squareup.moshi:moshi:1.11.0")
     implementation("com.jakewharton.timber:timber:4.7.1")
-    implementation("com.jackandphantom.android:customtogglebutton:1.0.1")
+    implementation ("com.github.rey5137:material:1.3.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.1")
     testImplementation("junit:junit:4.13.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")

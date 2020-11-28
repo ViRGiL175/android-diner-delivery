@@ -1,12 +1,11 @@
 package ru.commandos.diner.delivery.view;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.jackandphantom.customtogglebutton.CustomToggle;
 import com.jakewharton.rxbinding4.view.RxView;
+import com.rey.material.widget.Switch;
 
 import autodispose2.AutoDispose;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
@@ -39,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         RxView.clicks(binding.cardView.getBinding().incomingDenyButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onDenyClick);
+        RxView.clicks(binding.switchOflline)
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(this::onSwitchPositionChanged);
         ordersController.getIncomingOrderObservable()
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(order -> binding.cardView.showIncomingOrder(order));
@@ -49,20 +51,6 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
-
-        binding.tumblerOfflineMode.setOnToggleClickListener(new CustomToggle.OnToggleClickListener() {
-            @Override
-            public void onLefToggleEnabled(boolean enabled) {
-                ordersController.enterToOfflineMode();
-                Toast.makeText(MainActivity.this, "49854958984", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onRightToggleEnabled(boolean enabled) {
-                ordersController.exitFromOfflineMode();
-                Toast.makeText(MainActivity.this, "49854958984", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -88,5 +76,11 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerView.getAdapter().notifyDataSetChanged();
         binding.cardView.showIncomingOrder(null);
         orderNotificationController.deleteNotification();
+    }
+
+    private void onSwitchPositionChanged(Unit unit) {
+        if (binding.switchOflline.isChecked())
+            ordersController.enterToOfflineMode();
+        else ordersController.exitFromOfflineMode();
     }
 }
