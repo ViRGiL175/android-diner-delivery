@@ -41,13 +41,15 @@
         tools:listitem="@layout/accepted_order" />
 
     <com.jackandphantom.customtogglebutton.CustomToggle
+        android:id="@+id/tumblerOfflineMode"
         android:layout_width="0dp"
         android:layout_height="100dp"
+        app:ctg_addAnimationTime="400"
         app:ctg_addAnimationType="jack_animation"
-        app:ctg_addLeftIcon="@android:drawable/btn_dialog"
+        app:ctg_addLeftIcon="@android:drawable/checkbox_on_background"
         app:ctg_addRightIcon="@android:drawable/btn_dialog"
-        app:ctg_addSlideBackgroundColor="#6c817a"
-        app:ctg_addSlideColor="#ff67"
+        app:ctg_addSlideBackgroundColor="@color/white"
+        app:ctg_addSlideColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/acceptedOrdersLabel"
         app:layout_constraintTop_toTopOf="@+id/acceptedOrdersLabel"

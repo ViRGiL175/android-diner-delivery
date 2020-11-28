@@ -1,9 +1,11 @@
 package ru.commandos.diner.delivery.view;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.jackandphantom.customtogglebutton.CustomToggle;
 import com.jakewharton.rxbinding4.view.RxView;
 
 import autodispose2.AutoDispose;
@@ -47,6 +49,20 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
+
+        binding.tumblerOfflineMode.setOnToggleClickListener(new CustomToggle.OnToggleClickListener() {
+            @Override
+            public void onLefToggleEnabled(boolean enabled) {
+                ordersController.enterToOfflineMode();
+                Toast.makeText(MainActivity.this, "49854958984", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRightToggleEnabled(boolean enabled) {
+                ordersController.exitFromOfflineMode();
+                Toast.makeText(MainActivity.this, "49854958984", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
