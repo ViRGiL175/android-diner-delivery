@@ -37,7 +37,16 @@ public class MainActivity extends AppCompatActivity {
         RxView.clicks(binding.cardView.getBinding().incomingDenyButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onDenyClick);
-        updateOrderControllerProperties();
+        ordersController.getIncomingOrderObservable()
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(order -> binding.cardView.showIncomingOrder(order));
+        ordersController.getIncomingOrderObservable()
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(order -> orderNotificationController.showIncomingOrder(order));
+        ordersController.getAcceptedOrdersObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
     }
 
     @Override
@@ -63,18 +72,5 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerView.getAdapter().notifyDataSetChanged();
         binding.cardView.showIncomingOrder(null);
         orderNotificationController.deleteNotification();
-    }
-
-    public void updateOrderControllerProperties() {
-        ordersController.getIncomingOrderObservable()
-                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(order -> binding.cardView.showIncomingOrder(order));
-        ordersController.getIncomingOrderObservable()
-                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(order -> orderNotificationController.showIncomingOrder(order));
-        ordersController.getAcceptedOrdersObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
     }
 }
