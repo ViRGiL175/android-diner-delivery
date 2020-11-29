@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
+import ru.commandos.diner.delivery.model.OfflineState;
 import ru.commandos.diner.delivery.model.Order;
 
 import static autodispose2.AutoDispose.autoDisposable;
@@ -21,6 +22,7 @@ import static autodispose2.AutoDispose.autoDisposable;
 public class OrdersController {
 
     public static final String SHARED_PREFERENCES_ORDERS = "orders";
+    public static final String SHARED_PREFERENCES_OFFLINE = "offline";
     public static final int REQUESTS_INCOMING_ORDER_INTERVAL = 5;
     public static final int REQUEST_UPDATE_LIST_INTERVAL = 15;
     private final PublishSubject<Order> incomingOrderPublishSubject = PublishSubject.create();
@@ -32,7 +34,6 @@ public class OrdersController {
     private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
-    private boolean offlineMode = false;
     @Nullable
     private Order incomingOrder;
 
@@ -41,13 +42,11 @@ public class OrdersController {
         this.activity = activity;
         incomingOrderObservable = Observable.merge(incomingOrderPublishSubject,
                 Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
-                        .filter(aLong -> !offlineMode)
                         .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignIncomingOrder));
         acceptedOrdersObservable = Observable.merge(acceptedOrdersPublishSubject,
                 Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
-                        .filter(aLong -> !offlineMode)
                         .flatMapSingle(aLong -> serverApi.getAllOrders(courierUuid))
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignAcceptedOrders));
@@ -88,14 +87,6 @@ public class OrdersController {
                             assignAcceptedOrders(orders);
                             acceptedOrdersPublishSubject.onNext(orders);
                         }));
-    }
-
-    public void enterToOfflineMode() {
-        offlineMode = true;
-    }
-
-    public void exitFromOfflineMode() {
-        offlineMode = false;
     }
 
     public void onResume() {

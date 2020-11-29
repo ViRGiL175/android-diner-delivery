@@ -11,10 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="256dp"
         android:layout_margin="8dp"
+        android:layout_marginTop="8dp"
         app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/offlineModeLabel">
 
     </ru.commandos.diner.delivery.view.IncomingOrderCardView>
 
@@ -23,13 +24,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:text="Принятые заказы:"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
@@ -43,5 +40,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/acceptedOrdersLabel"
         tools:listitem="@layout/accepted_order" />
+
+    <com.rey.material.widget.Switch
+        android:id="@+id/switchOflline"
+        style="@style/Material.Widget.Switch"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:checked="true"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="@+id/cardView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:sw_thumbColor="@color/error"
+        app:sw_trackColor="@color/ic_launcher_background" />
+
+    <TextView
+        android:id="@+id/offlineModeLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Оффлайн-режим"
+        android:textAlignment="textEnd"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/switchOflline"
+        app:layout_constraintStart_toStartOf="@+id/cardView"
+        app:layout_constraintTop_toTopOf="@+id/switchOflline" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
