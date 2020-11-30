@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -32,7 +33,9 @@ android {
     }
 }
 
+
 dependencies {
+    implementation("com.google.android.gms:play-services-maps:17.0.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
@@ -40,7 +43,7 @@ dependencies {
     implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
-    implementation("io.reactivex.rxjava3:rxjava:3.0.6")
+    implementation("io.reactivex.rxjava3:rxjava:3.0.7")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
     implementation("com.jakewharton.rxbinding4:rxbinding-material:4.0.0")
     implementation("com.uber.autodispose2:autodispose:2.0.0")
