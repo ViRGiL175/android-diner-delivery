@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSwitchPositionChanged(Unit unit) {
         if (binding.switchOflline.isChecked()) {
-            compositeDisposable.dispose();
+            compositeDisposable.clear();
             binding.cardView.enterToOfflineMode();
         } else {
             binding.cardView.exitFromOfflineMode();
