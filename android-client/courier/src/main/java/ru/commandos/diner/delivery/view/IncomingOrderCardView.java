@@ -76,4 +76,13 @@ public class IncomingOrderCardView extends CardView {
             getBinding().incomingMassLabel.setVisibility(goneVisibility(visibility));
         });
     }
+
+    public void onOfflineModeChecked(Boolean checked) {
+        if (checked) {
+            setVisibility(GONE);
+        } else {
+            setVisibility(VISIBLE);
+            showIncomingOrder(null);
+        }
+    }
 }
