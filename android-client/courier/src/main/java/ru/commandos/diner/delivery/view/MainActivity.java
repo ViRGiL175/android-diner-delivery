@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.SupportMapFragment;
 import com.jakewharton.rxbinding4.view.RxView;
 import com.jakewharton.rxbinding4.widget.RxCompoundButton;
 
@@ -16,6 +17,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import kotlin.Unit;
+import ru.commandos.diner.delivery.R;
+import ru.commandos.diner.delivery.controller.LocationController;
 import ru.commandos.diner.delivery.controller.OrderNotificationController;
 import ru.commandos.diner.delivery.controller.OrdersController;
 import ru.commandos.diner.delivery.databinding.MainActivityBinding;
@@ -24,6 +27,7 @@ import ru.commandos.diner.delivery.model.Order;
 public class MainActivity extends AppCompatActivity {
 
     private final CompositeDisposable offlineDisposables = new CompositeDisposable();
+    private final LocationController locationController = new LocationController();
     private OrdersController ordersController;
     private OrderNotificationController orderNotificationController;
     private MainActivityBinding binding;
@@ -40,19 +44,24 @@ public class MainActivity extends AppCompatActivity {
         orderNotificationController = new OrderNotificationController(this, this);
         incomingOrderObservable = ordersController.getIncomingOrderObservable();
 
-        RxView.clicks(binding.cardView.getBinding().incomingAcceptButton)
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        supportMapFragment.getMapAsync(locationController);
+
+        RxView.clicks(binding.backdrop.cardView.getBinding().incomingAcceptButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onAcceptClick);
-        RxView.clicks(binding.cardView.getBinding().incomingDenyButton)
+        RxView.clicks(binding.backdrop.cardView.getBinding().incomingDenyButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onDenyClick);
-        RxCompoundButton.checkedChanges(binding.switchOffline)
+        RxCompoundButton.checkedChanges(binding.backdrop.switchOffline)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onOfflineModeChecked);
         ordersController.getAcceptedOrdersObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(orders -> binding.recyclerView.getAdapter().notifyDataSetChanged());
+                .subscribe(orders -> binding.backdrop.recyclerView.getAdapter()
+                        .notifyDataSetChanged());
     }
 
     @Override
@@ -65,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         ordersController.onResume();
-        binding.recyclerView.setOrders(ordersController.getAcceptedOrders());
-        binding.switchOffline.setChecked(ordersController.getOfflineState());
+        binding.backdrop.recyclerView.setOrders(ordersController.getAcceptedOrders());
+        binding.backdrop.switchOffline.setChecked(ordersController.getOfflineState());
     }
 
     @Override
@@ -77,27 +86,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void onDenyClick(Unit unit) {
         ordersController.denyOrder();
-        binding.cardView.showIncomingOrder(null);
+        binding.backdrop.cardView.showIncomingOrder(null);
         orderNotificationController.deleteNotification();
     }
 
     private void onAcceptClick(Unit unit) {
         ordersController.acceptOrder();
-        binding.recyclerView.getAdapter().notifyDataSetChanged();
-        binding.cardView.showIncomingOrder(null);
+        binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
+        binding.backdrop.cardView.showIncomingOrder(null);
         orderNotificationController.deleteNotification();
     }
 
     @SuppressLint("AutoDispose")
     private void onOfflineModeChecked(@NotNull Boolean checked) {
-        binding.cardView.onOfflineModeChecked(checked);
+        binding.backdrop.cardView.onOfflineModeChecked(checked);
         ordersController.setOfflineState(checked);
         orderNotificationController.deleteNotification();
         if (checked) {
             offlineDisposables.clear();
         } else {
             offlineDisposables.add(incomingOrderObservable.subscribe(order -> {
-                binding.cardView.showIncomingOrder(order);
+                binding.backdrop.cardView.showIncomingOrder(order);
                 orderNotificationController.showIncomingOrder(order);
             }));
         }
