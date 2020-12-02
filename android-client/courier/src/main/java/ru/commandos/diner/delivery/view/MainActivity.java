@@ -3,6 +3,7 @@ package ru.commandos.diner.delivery.view;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.SupportMapFragment;
@@ -17,6 +18,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import kotlin.Unit;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
 import ru.commandos.diner.delivery.R;
 import ru.commandos.diner.delivery.controller.LocationController;
 import ru.commandos.diner.delivery.controller.OrderNotificationController;
@@ -24,10 +27,14 @@ import ru.commandos.diner.delivery.controller.OrdersController;
 import ru.commandos.diner.delivery.databinding.MainActivityBinding;
 import ru.commandos.diner.delivery.model.Order;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+@RuntimePermissions
 public class MainActivity extends AppCompatActivity {
 
     private final CompositeDisposable offlineDisposables = new CompositeDisposable();
-    private final LocationController locationController = new LocationController();
+    private LocationController locationController;
     private OrdersController ordersController;
     private OrderNotificationController orderNotificationController;
     private MainActivityBinding binding;
@@ -44,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
         orderNotificationController = new OrderNotificationController(this, this);
         incomingOrderObservable = ordersController.getIncomingOrderObservable();
 
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        supportMapFragment.getMapAsync(locationController);
+        MainActivityPermissionsDispatcher.setupLocationWithPermissionCheck(this);
 
         RxView.clicks(binding.backdrop.cardView.getBinding().incomingAcceptButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
@@ -62,6 +67,21 @@ public class MainActivity extends AppCompatActivity {
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(orders -> binding.backdrop.recyclerView.getAdapter()
                         .notifyDataSetChanged());
+    }
+
+    @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
+    protected void setupLocation() {
+        locationController = new LocationController(this);
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        supportMapFragment.getMapAsync(locationController);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     @Override
