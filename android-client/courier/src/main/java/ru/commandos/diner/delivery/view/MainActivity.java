@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         ordersController.onResume();
+        binding.switchOflline.setChecked(ordersController.getOfflineStatus());
     }
 
     @Override
@@ -91,9 +92,11 @@ public class MainActivity extends AppCompatActivity {
     private void onSwitchPositionChanged(Unit unit) {
         if (binding.switchOflline.isChecked()) {
             compositeDisposable.clear();
+            ordersController.enterToOfflineMode();
             binding.cardView.enterToOfflineMode();
         } else {
             binding.cardView.exitFromOfflineMode();
+            ordersController.exitFromOfflineMode();
             orderNotificationController.deleteNotification();
             updateSubscribes();
         }

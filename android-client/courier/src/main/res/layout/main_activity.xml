@@ -59,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Оффлайн-режим"
+        android:text="Офлайн-режим"
         android:textAlignment="textEnd"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textSize="18sp"

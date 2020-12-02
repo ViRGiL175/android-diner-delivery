@@ -31,9 +31,11 @@ public class OrdersController {
     private final Observable<List<Order>> acceptedOrdersObservable;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
     private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
+    private final SharedPreferencesHelper<OfflineState> sharedPreferencesHelperOffline;
     private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
+    private OfflineState offlineState = new OfflineState();
     @Nullable
     private Order incomingOrder;
 
@@ -51,6 +53,7 @@ public class OrdersController {
                         .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignAcceptedOrders));
         sharedPreferencesHelper = new SharedPreferencesHelper<>(activity, Order.class);
+        sharedPreferencesHelperOffline = new SharedPreferencesHelper<OfflineState>(activity, OfflineState.class);
         onResume();
     }
 
@@ -89,14 +92,27 @@ public class OrdersController {
                         }));
     }
 
+    public void enterToOfflineMode() {
+        offlineState.offlineMode = true;
+    }
+
+    public void exitFromOfflineMode() {
+        offlineState.offlineMode = false;
+    }
+
+
     public void onResume() {
         acceptedOrders.clear();
         acceptedOrders.addAll(Optional.ofNullable(sharedPreferencesHelper
                 .getModelsArrayList(SHARED_PREFERENCES_ORDERS)).orElse(new ArrayList<>()));
+
+        offlineState = (Optional.ofNullable(sharedPreferencesHelperOffline
+                .getModel(SHARED_PREFERENCES_OFFLINE)).orElse(new OfflineState()));
     }
 
     public void onPause() {
         sharedPreferencesHelper.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
+        sharedPreferencesHelperOffline.saveModel(SHARED_PREFERENCES_OFFLINE, offlineState);
     }
 
     public Observable<List<Order>> getAcceptedOrdersObservable() {
@@ -109,5 +125,9 @@ public class OrdersController {
 
     public Observable<Order> getIncomingOrderObservable() {
         return incomingOrderObservable;
+    }
+
+    public boolean getOfflineStatus() {
+        return offlineState.offlineMode;
     }
 }
