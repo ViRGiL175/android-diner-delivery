@@ -59,19 +59,25 @@ public class MainActivity extends AppCompatActivity {
         RxView.clicks(binding.backdrop.cardView.getBinding().incomingDenyButton)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onDenyClick);
+        RxView.clicks(binding.showAll)
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(unit -> locationController.showAllOnMap());
         RxCompoundButton.checkedChanges(binding.backdrop.switchOffline)
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(this::onOfflineModeChecked);
         ordersController.getAcceptedOrdersObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(orders -> binding.backdrop.recyclerView.getAdapter()
-                        .notifyDataSetChanged());
+                .subscribe(orders -> {
+                    binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
+                    locationController.updateAcceptedOrders();
+                });
     }
 
     @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
     protected void setupLocation() {
         locationController = new LocationController(this);
+        locationController.setAcceptedOrders(ordersController.getAcceptedOrders());
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         supportMapFragment.getMapAsync(locationController);
@@ -124,11 +130,14 @@ public class MainActivity extends AppCompatActivity {
         orderNotificationController.deleteNotification();
         if (checked) {
             offlineDisposables.clear();
+            locationController.showIncomingOrder(null);
         } else {
-            offlineDisposables.add(incomingOrderObservable.subscribe(order -> {
-                binding.backdrop.cardView.showIncomingOrder(order);
-                orderNotificationController.showIncomingOrder(order);
-            }));
+            offlineDisposables.add(incomingOrderObservable.observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(order -> {
+                        binding.backdrop.cardView.showIncomingOrder(order);
+                        orderNotificationController.showIncomingOrder(order);
+                        locationController.showIncomingOrder(order);
+                    }));
         }
     }
 }

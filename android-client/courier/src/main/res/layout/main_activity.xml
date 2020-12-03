@@ -12,12 +12,23 @@
         android:layout_height="match_parent"
         tools:context=".view.MainActivity" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/showAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:tint="@color/white"
+        app:srcCompat="@drawable/ic_baseline_my_location_24" />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:behavior_peekHeight="64dp"
         app:cardCornerRadius="16dp"
-        app:elevation="16dp"
+        app:cardElevation="16dp"
         app:layout_behavior=".view.OrdersBackdropBehavior">
 
         <include
