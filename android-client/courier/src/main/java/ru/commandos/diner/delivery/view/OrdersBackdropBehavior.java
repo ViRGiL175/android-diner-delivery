@@ -15,7 +15,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.controller.DpConverter;
-import timber.log.Timber;
 
 @EverythingIsNonNull
 public class OrdersBackdropBehavior extends BottomSheetBehavior<View> {
@@ -27,13 +26,6 @@ public class OrdersBackdropBehavior extends BottomSheetBehavior<View> {
 
     public OrdersBackdropBehavior(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    @Override
-    public boolean onNestedFling(@NonNull CoordinatorLayout coordinatorLayout, @NonNull View child,
-                                 @NonNull View target, float velocityX, float velocityY, boolean consumed) {
-        Timber.e("X: " + velocityX + ", Y: " + velocityY);
-        return super.onNestedFling(coordinatorLayout, child, target, velocityX, velocityY, consumed);
     }
 
     @Override
