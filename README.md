@@ -35,6 +35,8 @@
 
 **Ценности:** скорость доставки, бережная доставка
 
-## Архитектура
+## Архитектура и git-процесс
 
-<img align="center" src="https://user-images.githubusercontent.com/11541555/100650890-10feab80-335e-11eb-8f8e-c35db74f5b89.png">
+<img src="https://user-images.githubusercontent.com/11541555/100650890-10feab80-335e-11eb-8f8e-c35db74f5b89.png">
+
+<img src="https://user-images.githubusercontent.com/11541555/100995760-a4f49100-3571-11eb-8fd2-b7a477e6c218.png">
