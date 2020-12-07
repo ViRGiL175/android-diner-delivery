@@ -18,14 +18,16 @@ public class DeliveryService extends BaseComponent implements DisposableBean {
 
     private final OrderNamesProvider orderNamesProvider;
     private final CouriersProvider couriersProvider;
+    private final LocationProvider locationProvider;
     private final Map<UUID, Order> preparedOrders = new HashMap<>();
     private final List<Order> incomingOrders = new ArrayList<>();
     private final List<OrderDelivery> workingOrders = new ArrayList<>();
 
-    public DeliveryService(@Autowired OrderNamesProvider orderNamesProvider,
-                           @Autowired CouriersProvider couriersProvider) {
+    public DeliveryService(OrderNamesProvider orderNamesProvider, CouriersProvider couriersProvider,
+                           LocationProvider locationProvider) {
         this.orderNamesProvider = orderNamesProvider;
         this.couriersProvider = couriersProvider;
+        this.locationProvider = locationProvider;
         setupOrdersGenerating();
         setupOrdersAssigning(couriersProvider);
     }
@@ -52,7 +54,8 @@ public class DeliveryService extends BaseComponent implements DisposableBean {
         Observable.interval(0, 10, TimeUnit.SECONDS)
                 .doOnNext(aLong -> {
                     Random random = new Random();
-                    Order order = new Order(UUID.randomUUID());
+                    Order order = new Order(UUID.randomUUID(), locationProvider.getDinerLocation(),
+                            locationProvider.getDestination());
                     int itemsCount = random.nextInt(5) + 1;
                     for (int i = 0; i < itemsCount; i++) {
                         Map.Entry<String, Feature[]> rawItem = orderNamesProvider.getRandom(
