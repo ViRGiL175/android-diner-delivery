@@ -51,7 +51,6 @@ public class DeliveryService extends BaseComponent implements DisposableBean {
                 .filter(aLong -> !incomingOrders.isEmpty())
                 .doOnNext(aLong -> preparedOrders.put(couriersProvider.courierUuids.get(0),
                         incomingOrders.remove(0)))
-                .doOnNext(aLong -> logger.info("Assigned on " + aLong))
                 .subscribe();
     }
 
@@ -66,7 +65,6 @@ public class DeliveryService extends BaseComponent implements DisposableBean {
                     .map(rawItem -> new Item(rawItem.getKey(), random.nextFloat() * 1000 + 200, rawItem.getValue()))
                     .forEachOrdered(order.items::add);
             incomingOrders.add(order);
-            logger.info("Generated with " + order.items.size() + " items");
         }).subscribe();
     }
 
