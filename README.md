@@ -10,7 +10,6 @@
 | [🔁 Пулл-реквесты](https://github.com/ViRGiL175/android-diner-delivery/pulls) | [🎬 Истории](https://github.com/ViRGiL175/android-diner-delivery/issues?q=is%3Aopen+is%3Aissue+label%3Atype%3A_story) | [🧘‍♀️ Стратегия Скрам](https://github.com/ViRGiL175/android-diner-delivery/issues/9) |
 | [🔢 Релизы](https://github.com/ViRGiL175/android-diner-delivery/releases) | [👍 Улучшения](https://github.com/ViRGiL175/android-diner-delivery/issues?q=is%3Aopen+is%3Aissue+label%3Atype%3A_enhancement) |  |
 | [📜 Проджекты](https://github.com/ViRGiL175/android-diner-delivery/projects) | [⏱️ Спринты](https://github.com/ViRGiL175/android-diner-delivery/milestones?direction=asc&sort=due_date&state=open) |  |
-<!-- | []() | []() | []() | --> 
 
 ## Глобальные цели
 Минимализм и нативность для Android. 
@@ -36,3 +35,8 @@
 
 **Ценности:** скорость доставки, бережная доставка
 
+## Архитектура и git-процесс
+
+<img src="https://user-images.githubusercontent.com/11541555/100650890-10feab80-335e-11eb-8f8e-c35db74f5b89.png">
+
+<img src="https://user-images.githubusercontent.com/11541555/100995760-a4f49100-3571-11eb-8fd2-b7a477e6c218.png">
