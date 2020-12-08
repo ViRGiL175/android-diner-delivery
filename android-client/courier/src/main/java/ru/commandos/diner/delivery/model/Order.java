@@ -2,6 +2,8 @@ package ru.commandos.diner.delivery.model;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,10 +21,27 @@ public class Order extends BaseApiModel {
     protected final String uuid;
     @Nullable
     protected final List<Item> items;
+    @Nullable
+    protected final Location dinerLocation;
+    @Nullable
+    protected final Location destination;
 
-    public Order(@Nullable String uuid, @Nullable List<Item> items) {
+    public Order(@Nullable String uuid, @Nullable List<Item> items, @Nullable Location dinerLocation,
+                 @Nullable Location destination) {
         this.uuid = uuid;
         this.items = items;
+        this.dinerLocation = dinerLocation;
+        this.destination = destination;
+    }
+
+    @Nullable
+    public LatLng getDinerLocation() {
+        return new LatLng(dinerLocation.latitude, dinerLocation.longitude);
+    }
+
+    @Nullable
+    public LatLng getDestination() {
+        return new LatLng(destination.latitude, destination.longitude);
     }
 
     public String getUuid() {
