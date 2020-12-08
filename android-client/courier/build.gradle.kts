@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -32,9 +33,12 @@ android {
     }
 }
 
+
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("com.google.android.gms:play-services-maps:17.0.0")
+    implementation("com.google.android.gms:play-services-location:17.1.0")
     implementation("com.google.android.material:material:1.2.1")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
@@ -49,6 +53,8 @@ dependencies {
     implementation("com.uber.autodispose2:autodispose-androidx-lifecycle:2.0.0")
     implementation("com.squareup.moshi:moshi:1.11.0")
     implementation("com.jakewharton.timber:timber:4.7.1")
+    implementation ("org.permissionsdispatcher:permissionsdispatcher:4.8.0")
+    annotationProcessor ("org.permissionsdispatcher:permissionsdispatcher-processor:4.8.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.1")
     testImplementation("junit:junit:4.13.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")

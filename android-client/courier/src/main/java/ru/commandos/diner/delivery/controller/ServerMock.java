@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.core.Single;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Item;
+import ru.commandos.diner.delivery.model.Location;
 import ru.commandos.diner.delivery.model.Order;
 import ru.commandos.diner.delivery.model.OrderItems;
 
@@ -19,6 +20,7 @@ import ru.commandos.diner.delivery.model.OrderItems;
 class ServerMock implements ServerApi {
 
     public static final int SERVER_DELAY = 3;
+    public static final Location mockLocation = new Location(56.85306, 53.21222);
 
     private final List<Order> orders = new ArrayList<>();
 
@@ -44,7 +46,9 @@ class ServerMock implements ServerApi {
             }
             items.add(new Item(name, mass, features));
         }
-        return new Order(uuid.toString(), items);
+        return new Order(uuid.toString(), items, mockLocation, new Location(
+                mockLocation.latitude + (Math.random() - 1) / 5,
+                mockLocation.longitude + (Math.random() - 1) / 5));
     }
 
     @Override
