@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
      - name: check
+       uses: actions/hello-world-javascript-action@main
+       with:
+         who-to-greet: 'Mona the Octocat'
 #   # This workflow contains a single job called "build"
 #   build:
 #     # The type of runner that the job will run on
