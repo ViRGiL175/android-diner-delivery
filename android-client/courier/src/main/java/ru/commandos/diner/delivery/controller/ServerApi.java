@@ -14,7 +14,7 @@ public interface ServerApi {
     @GET("/delivery/check")
     Single<Order> getIncomingOrder(@Query("courierUuid") String courierUuid);
 
-    @GET("/delivery/all")
+    @GET("/delivery/status")
     Single<List<Order>> getAllOrders(@Query("courierUuid") String courierUuid);
 
     @GET("/delivery/accept")
