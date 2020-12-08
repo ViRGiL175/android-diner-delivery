@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
+import ru.commandos.diner.delivery.model.OfflineState;
 import ru.commandos.diner.delivery.model.Order;
 
 import static autodispose2.AutoDispose.autoDisposable;
@@ -21,6 +22,7 @@ import static autodispose2.AutoDispose.autoDisposable;
 public class OrdersController {
 
     public static final String SHARED_PREFERENCES_ORDERS = "orders";
+    public static final String SHARED_PREFERENCES_OFFLINE = "offline";
     public static final int REQUESTS_INCOMING_ORDER_INTERVAL = 5;
     public static final int REQUEST_UPDATE_LIST_INTERVAL = 15;
     private final PublishSubject<Order> incomingOrderPublishSubject = PublishSubject.create();
@@ -28,12 +30,14 @@ public class OrdersController {
     private final PublishSubject<List<Order>> acceptedOrdersPublishSubject = PublishSubject.create();
     private final Observable<List<Order>> acceptedOrdersObservable;
     private final ServerApi serverApi = HttpService.getInstance().getServerApi();
-    private final SharedPreferencesHelper<Order> sharedPreferencesHelper;
+    private final SharedPreferencesHelper<Order> ordersSharedPreferences;
+    private final SharedPreferencesHelper<OfflineState> offlineSharedPreferences;
     private final AppCompatActivity activity;
     private final ArrayList<Order> acceptedOrders = new ArrayList<>();
     private final String courierUuid;
     @Nullable
     private Order incomingOrder;
+    private OfflineState offlineState = new OfflineState(false);
 
     public OrdersController(String courierUuid, AppCompatActivity activity) {
         this.courierUuid = courierUuid;
@@ -41,15 +45,22 @@ public class OrdersController {
         incomingOrderObservable = Observable.merge(incomingOrderPublishSubject,
                 Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
                         .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
-                        .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignIncomingOrder));
         acceptedOrdersObservable = Observable.merge(acceptedOrdersPublishSubject,
                 Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
                         .flatMapSingle(aLong -> serverApi.getAllOrders(courierUuid))
-                        .doOnError(Throwable::printStackTrace)
                         .doOnNext(this::assignAcceptedOrders));
-        sharedPreferencesHelper = new SharedPreferencesHelper<>(activity, Order.class);
+        ordersSharedPreferences = new SharedPreferencesHelper<>(activity, Order.class);
+        offlineSharedPreferences = new SharedPreferencesHelper<>(activity, OfflineState.class);
         onResume();
+    }
+
+    public boolean getOfflineState() {
+        return offlineState.offlineMode;
+    }
+
+    public void setOfflineState(boolean state) {
+        offlineState.offlineMode = state;
     }
 
     private void assignIncomingOrder(Order order) {
@@ -89,12 +100,16 @@ public class OrdersController {
 
     public void onResume() {
         acceptedOrders.clear();
-        acceptedOrders.addAll(Optional.ofNullable(sharedPreferencesHelper
+        acceptedOrders.addAll(Optional.ofNullable(ordersSharedPreferences
                 .getModelsArrayList(SHARED_PREFERENCES_ORDERS)).orElse(new ArrayList<>()));
+        offlineState = Optional.ofNullable(offlineSharedPreferences
+                .getModel(SHARED_PREFERENCES_OFFLINE)).orElse(new OfflineState(false));
     }
 
     public void onPause() {
-        sharedPreferencesHelper.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
+        ordersSharedPreferences.saveModelsArrayList(SHARED_PREFERENCES_ORDERS, acceptedOrders);
+        offlineSharedPreferences.saveModel(SHARED_PREFERENCES_OFFLINE, Optional
+                .ofNullable(offlineState).orElse(new OfflineState(false)));
     }
 
     public Observable<List<Order>> getAcceptedOrdersObservable() {
