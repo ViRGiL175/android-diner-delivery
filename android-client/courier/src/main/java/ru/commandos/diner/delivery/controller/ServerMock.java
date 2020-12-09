@@ -10,10 +10,10 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.internal.EverythingIsNonNull;
+import ru.commandos.diner.delivery.model.ApiOrder;
 import ru.commandos.diner.delivery.model.Feature;
 import ru.commandos.diner.delivery.model.Item;
 import ru.commandos.diner.delivery.model.Location;
-import ru.commandos.diner.delivery.model.Order;
 import ru.commandos.diner.delivery.model.OrderItems;
 
 @EverythingIsNonNull
@@ -22,17 +22,17 @@ class ServerMock implements ServerApi {
     public static final int SERVER_DELAY = 3;
     public static final Location mockLocation = new Location(56.85306, 53.21222);
 
-    private final List<Order> orders = new ArrayList<>();
+    private final List<ApiOrder> apiOrders = new ArrayList<>();
 
     {
-        orders.add(getRandomOrder());
+        apiOrders.add(getRandomOrder());
     }
 
-    private Order getRandomOrder() {
+    private ApiOrder getRandomOrder() {
         return getRandomOrder(UUID.randomUUID());
     }
 
-    private Order getRandomOrder(UUID uuid) {
+    private ApiOrder getRandomOrder(UUID uuid) {
         Random random = new Random();
         ArrayList<Item> items = new ArrayList<>();
         for (int i = 0; i < random.nextInt(4) + 1; i++) {
@@ -46,30 +46,30 @@ class ServerMock implements ServerApi {
             }
             items.add(new Item(name, mass, features));
         }
-        return new Order(uuid.toString(), items, mockLocation, new Location(
+        return new ApiOrder(uuid.toString(), items, mockLocation, new Location(
                 mockLocation.latitude + (Math.random() - 1) / 5,
                 mockLocation.longitude + (Math.random() - 1) / 5));
     }
 
     @Override
-    public Single<Order> getIncomingOrder(String courierUuid) {
+    public Single<ApiOrder> getIncomingOrder(String courierUuid) {
         return Single.just(getRandomOrder()).delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
-    public Single<List<Order>> getAllOrders(String courierUuid) {
-        return Single.just(orders).delay(SERVER_DELAY, TimeUnit.SECONDS);
+    public Single<List<ApiOrder>> getAllOrders(String courierUuid) {
+        return Single.just(apiOrders).delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
     public Completable acceptOrder(String courierUuid, String orderUuid) {
-        return Completable.fromAction(() -> orders.add(getRandomOrder(UUID.fromString(orderUuid))))
+        return Completable.fromAction(() -> apiOrders.add(getRandomOrder(UUID.fromString(orderUuid))))
                 .delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
     public Completable denyOrder(String courierUuid, String orderUuid) {
-        return Completable.fromAction(() -> orders
+        return Completable.fromAction(() -> apiOrders
                 .removeIf(order -> order.getUuid().equals(orderUuid)))
                 .delay(SERVER_DELAY, TimeUnit.SECONDS);
     }

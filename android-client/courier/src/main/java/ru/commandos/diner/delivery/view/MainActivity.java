@@ -2,6 +2,7 @@ package ru.commandos.diner.delivery.view;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,9 +13,12 @@ import com.jakewharton.rxbinding4.widget.RxCompoundButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
+
 import autodispose2.AutoDispose;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import kotlin.Unit;
@@ -71,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(orders -> {
                     binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
                     locationController.updateAcceptedOrders();
+                });
+
+        Completable.timer(10, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(() -> {
+                    Toast.makeText(this, "Курьер подошел к клиенту", Toast.LENGTH_LONG).show();
+                    ordersController.getAcceptedOrders().get(0).setResolvable(true);
+                    binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
                 });
     }
 
