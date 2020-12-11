@@ -111,10 +111,12 @@ public class LocationController extends LocationCallback implements OnMapReadyCa
         markers.addAll(acceptedOrdersMarkers);
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         markers.forEach(marker -> builder.include(marker.getPosition()));
-        LatLngBounds bounds = builder.build();
-        int cameraPadding = (int) DpConverter.convertDpToPixel(72);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, cameraPadding);
-        googleMap.animateCamera(cameraUpdate);
+        if (markers.size() != 0) {
+            LatLngBounds bounds = builder.build();
+            int cameraPadding = (int) DpConverter.convertDpToPixel(72);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, cameraPadding);
+            googleMap.animateCamera(cameraUpdate);
+        }
     }
 
     @Override
