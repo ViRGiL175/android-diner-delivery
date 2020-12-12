@@ -111,10 +111,12 @@ public class LocationController extends LocationCallback implements OnMapReadyCa
         markers.addAll(acceptedOrdersMarkers);
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         markers.forEach(marker -> builder.include(marker.getPosition()));
-        LatLngBounds bounds = builder.build();
-        int cameraPadding = (int) DpConverter.convertDpToPixel(72);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, cameraPadding);
-        googleMap.animateCamera(cameraUpdate);
+        if (markers.size() != 0) {
+            LatLngBounds bounds = builder.build();
+            int cameraPadding = (int) DpConverter.convertDpToPixel(72);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, cameraPadding);
+            googleMap.animateCamera(cameraUpdate);
+        }
     }
 
     @Override
@@ -127,7 +129,7 @@ public class LocationController extends LocationCallback implements OnMapReadyCa
         return LocationRequest.create()
                 .setInterval(10000)
                 .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     public void setAcceptedOrders(ArrayList<Order> acceptedOrders) {
