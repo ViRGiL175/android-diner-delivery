@@ -129,7 +129,7 @@ public class LocationController extends LocationCallback implements OnMapReadyCa
         return LocationRequest.create()
                 .setInterval(10000)
                 .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     public void setAcceptedOrders(ArrayList<Order> acceptedOrders) {
