@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import io.reactivex.rxjava3.core.Completable;
@@ -45,14 +46,20 @@ public class OrdersController {
         incomingOrderObservable = Observable.merge(incomingOrderPublishSubject,
                 Observable.interval(1, REQUESTS_INCOMING_ORDER_INTERVAL, TimeUnit.SECONDS)
                         .flatMapSingle(aLong -> serverApi.getIncomingOrder(courierUuid))
+                        .map(Order::new)
                         .doOnNext(this::assignIncomingOrder));
         acceptedOrdersObservable = Observable.merge(acceptedOrdersPublishSubject,
                 Observable.interval(1, REQUEST_UPDATE_LIST_INTERVAL, TimeUnit.SECONDS)
                         .flatMapSingle(aLong -> serverApi.getAllOrders(courierUuid))
+                        .map(orders -> orders.stream().map(Order::new).collect(Collectors.toList()))
                         .doOnNext(this::assignAcceptedOrders));
         ordersSharedPreferences = new SharedPreferencesHelper<>(activity, Order.class);
         offlineSharedPreferences = new SharedPreferencesHelper<>(activity, OfflineState.class);
         onResume();
+    }
+
+    public void deliveryOrder(String orderUuid, String codeUuid) throws Throwable {
+        serverApi.handshake(courierUuid, orderUuid, codeUuid);
     }
 
     public boolean getOfflineState() {
@@ -77,6 +84,7 @@ public class OrdersController {
                 .ifPresent(order -> serverApi.acceptOrder(courierUuid, order.getUuid())
                         .andThen(Completable.fromAction(() -> incomingOrder = null))
                         .andThen(serverApi.getAllOrders(courierUuid))
+                        .map(orders -> orders.stream().map(Order::new).collect(Collectors.toList()))
                         .doOnError(Throwable::printStackTrace)
                         .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
                         .subscribe(orders -> {
@@ -90,6 +98,7 @@ public class OrdersController {
                 .ifPresent(order -> serverApi.denyOrder(courierUuid, order.getUuid())
                         .andThen(Completable.fromAction(() -> incomingOrder = null))
                         .andThen(serverApi.getAllOrders(courierUuid))
+                        .map(orders -> orders.stream().map(Order::new).collect(Collectors.toList()))
                         .doOnError(Throwable::printStackTrace)
                         .to(autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
                         .subscribe(orders -> {

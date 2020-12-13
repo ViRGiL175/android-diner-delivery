@@ -7,21 +7,26 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import ru.commandos.diner.delivery.model.Order;
+import ru.commandos.diner.delivery.model.ApiOrder;
 
 public interface ServerApi {
 
     @GET("/delivery/check")
-    Single<Order> getIncomingOrder(@Query("courierUuid") String courierUuid);
+    Single<ApiOrder> getIncomingOrder(@Query("courierUuid") String courierUuid);
 
-    @GET("/delivery/all")
-    Single<List<Order>> getAllOrders(@Query("courierUuid") String courierUuid);
+    @GET("/delivery/status")
+    Single<List<ApiOrder>> getAllOrders(@Query("courierUuid") String courierUuid);
 
     @GET("/delivery/accept")
     Completable acceptOrder(@Query("courierUuid") String courierUuid,
-                            @Query("courierUuid") String orderUuid);
+                            @Query("orderUuid") String orderUuid);
 
     @GET("/delivery/deny")
     Completable denyOrder(@Query("courierUuid") String courierUuid,
-                          @Query("courierUuid") String orderUuid);
+                          @Query("orderUuid") String orderUuid);
+
+    @GET("/delivery/handshake")
+    void handshake(@Query("courierUuid") String courierUuid,
+                          @Query("orderUuid") String orderUuid,
+                          @Query("codeUuid") String codeUuid) throws Throwable;
 }

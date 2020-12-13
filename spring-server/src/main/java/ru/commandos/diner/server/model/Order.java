@@ -8,8 +8,12 @@ public class Order {
 
     public final UUID uuid;
     public final List<Item> items = new ArrayList<>();
+    public final Location dinerLocation;
+    public final Location destination;
 
-    public Order(UUID uuid) {
+    public Order(UUID uuid, Location dinerLocation, Location destination) {
         this.uuid = uuid;
+        this.dinerLocation = dinerLocation;
+        this.destination = destination;
     }
 }
