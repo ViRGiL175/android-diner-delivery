@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import ru.commandos.diner.delivery.model.Order;
@@ -37,6 +38,10 @@ public class AcceptedOrdersRecyclerView extends RecyclerView {
 
     public void setOrders(List<Order> orders) {
         getAdapter().setOrders(orders);
+    }
+
+    public void setOrdersResolving(Map<Order, Boolean> ordersResolving) {
+        getAdapter().setOrdersResolving(ordersResolving);
     }
 
     @Override

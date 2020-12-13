@@ -7,15 +7,15 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import ru.commandos.diner.delivery.model.ApiOrder;
+import ru.commandos.diner.delivery.model.Order;
 
 public interface ServerApi {
 
     @GET("/delivery/check")
-    Single<ApiOrder> getIncomingOrder(@Query("courierUuid") String courierUuid);
+    Single<Order> getIncomingOrder(@Query("courierUuid") String courierUuid);
 
     @GET("/delivery/status")
-    Single<List<ApiOrder>> getAllOrders(@Query("courierUuid") String courierUuid);
+    Single<List<Order>> getAllOrders(@Query("courierUuid") String courierUuid);
 
     @GET("/delivery/accept")
     Completable acceptOrder(@Query("courierUuid") String courierUuid,

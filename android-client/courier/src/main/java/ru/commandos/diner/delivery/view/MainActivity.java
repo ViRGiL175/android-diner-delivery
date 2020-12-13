@@ -27,6 +27,7 @@ import permissions.dispatcher.RuntimePermissions;
 import ru.commandos.diner.delivery.R;
 import ru.commandos.diner.delivery.controller.LocationController;
 import ru.commandos.diner.delivery.controller.OrderNotificationController;
+import ru.commandos.diner.delivery.controller.OrderResolvingController;
 import ru.commandos.diner.delivery.controller.OrdersController;
 import ru.commandos.diner.delivery.databinding.MainActivityBinding;
 import ru.commandos.diner.delivery.model.Order;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private OrderNotificationController orderNotificationController;
     private MainActivityBinding binding;
     private Observable<Order> incomingOrderObservable;
+    private OrderResolvingController orderResolvingController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ordersController = new OrdersController("df307a18-1b66-432a-8011-39b68397d000", this);
+        orderResolvingController = new OrderResolvingController();
 
         orderNotificationController = new OrderNotificationController(this, this);
         incomingOrderObservable = ordersController.getIncomingOrderObservable();
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(() -> {
                     Toast.makeText(this, "Курьер подошел к клиенту", Toast.LENGTH_LONG).show();
-                    ordersController.getAcceptedOrders().get(0).setResolvable(true);
+                    orderResolvingController.getOrders().put(ordersController.getAcceptedOrders().get(0), true);
                     binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
                 });
     }
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         ordersController.onResume();
         binding.backdrop.recyclerView.setOrders(ordersController.getAcceptedOrders());
+        binding.backdrop.recyclerView.setOrdersResolving(orderResolvingController.getOrders());
         binding.backdrop.switchOffline.setChecked(ordersController.getOfflineState());
     }
 

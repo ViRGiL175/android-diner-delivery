@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jakewharton.rxbinding4.view.RxView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import autodispose2.AutoDispose;
 import io.reactivex.rxjava3.subjects.CompletableSubject;
@@ -19,7 +22,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
 import ru.commandos.diner.delivery.controller.ActivityGetter;
 import ru.commandos.diner.delivery.databinding.AcceptedOrderBinding;
-import ru.commandos.diner.delivery.model.ApiOrder;
 import ru.commandos.diner.delivery.model.Order;
 
 @EverythingIsNonNull
@@ -27,8 +29,9 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrdersAd
         .AcceptedOrderHolder> {
 
     private final CompletableSubject adapterDisposing = CompletableSubject.create();
-    private final PublishSubject<ApiOrder> orderResolved = PublishSubject.create();
+    private final PublishSubject<Order> orderResolved = PublishSubject.create();
     private List<Order> orders = new ArrayList<>();
+    private Map<Order, Boolean> ordersResolving = new HashMap<>();
 
     @NonNull
     @Override
@@ -46,7 +49,8 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrdersAd
         holder.binding.acceptedUuid.setText(order.getUuid());
         holder.binding.acceptedFeatures.setText(order.getReadableFeatures());
         holder.binding.acceptedMass.setText(order.getReadableMass());
-        holder.binding.resolve.setVisibility(order.isResolvable() ? View.VISIBLE : View.GONE);
+        holder.binding.resolve.setVisibility(Optional.ofNullable(ordersResolving.get(order))
+                .orElse(false) ? View.VISIBLE : View.GONE);
         RxView.clicks(holder.binding.resolve)
                 .to(AutoDispose.autoDisposable(observer -> adapterDisposing
                         .doOnComplete(observer::onComplete)
@@ -67,6 +71,10 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrdersAd
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+
+    public void setOrdersResolving(Map<Order, Boolean> ordersResolving) {
+        this.ordersResolving = ordersResolving;
     }
 
     @EverythingIsNonNull
