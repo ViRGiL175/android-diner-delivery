@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         orderNotificationController = new OrderNotificationController(this, this);
         incomingOrderObservable = ordersController.getIncomingOrderObservable();
 
+        locationController = new LocationController(this);
         MainActivityPermissionsDispatcher.setupLocationWithPermissionCheck(this);
 
         RxView.clicks(binding.backdrop.cardView.getBinding().incomingAcceptButton)
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
     @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
     protected void setupLocation() {
-        locationController = new LocationController(this);
         locationController.setAcceptedOrders(ordersController.getAcceptedOrders());
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
