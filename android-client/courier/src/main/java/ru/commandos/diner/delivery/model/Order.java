@@ -26,8 +26,8 @@ public class Order extends BaseApiModel {
     @Nullable
     protected final Location destination;
 
-    public Order(@Nullable String uuid, @Nullable List<Item> items, @Nullable Location dinerLocation,
-                 @Nullable Location destination) {
+    public Order(@Nullable String uuid, @Nullable List<Item> items,
+                 @Nullable Location dinerLocation, @Nullable Location destination) {
         this.uuid = uuid;
         this.items = items;
         this.dinerLocation = dinerLocation;

@@ -14,8 +14,9 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("io.reactivex.rxjava3:rxjava:3.0.6")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.test {
-    useJUnit()
+    useJUnitPlatform()
 }
