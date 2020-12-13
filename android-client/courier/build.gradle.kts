@@ -38,6 +38,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:17.0.0")
     implementation("com.google.android.gms:play-services-location:17.1.0")
     implementation("com.google.android.material:material:1.2.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.1.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

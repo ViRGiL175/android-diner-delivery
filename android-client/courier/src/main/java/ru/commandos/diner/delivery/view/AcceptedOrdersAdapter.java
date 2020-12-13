@@ -6,14 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.jakewharton.rxbinding4.view.RxView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import autodispose2.AutoDispose;
+import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import io.reactivex.rxjava3.subjects.CompletableSubject;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import retrofit2.internal.EverythingIsNonNull;
@@ -47,11 +54,24 @@ public class AcceptedOrdersAdapter extends RecyclerView.Adapter<AcceptedOrdersAd
         holder.binding.acceptedFeatures.setText(order.getReadableFeatures());
         holder.binding.acceptedMass.setText(order.getReadableMass());
         holder.binding.resolve.setVisibility(order.isResolvable() ? View.VISIBLE : View.GONE);
-        RxView.clicks(holder.binding.resolve)
-                .to(AutoDispose.autoDisposable(observer -> adapterDisposing
-                        .doOnComplete(observer::onComplete)
-                        .subscribe()))
-                .subscribe(unit -> orderResolved.onNext(order));
+
+        Optional<AppCompatActivity> optional = ActivityGetter.getActivity(holder.itemView);
+        if (optional.isPresent() && optional.get() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) optional.get();
+            RxView.clicks(holder.binding.resolve)
+                    .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(activity)))
+                    .subscribe(unit -> scanQRCode(activity, order));
+        }
+    }
+
+    private void scanQRCode(MainActivity activity, Order order) {
+        activity.setReadyToHandshakeOrderUUID(order.getUuid());
+        IntentIntegrator integrator = new IntentIntegrator(activity);
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+        integrator.setPrompt("Scan a QR code");
+        integrator.setBeepEnabled(false);
+        integrator.setBarcodeImageEnabled(false);
+        integrator.initiateScan();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ru.commandos.diner.delivery.view;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -8,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.jakewharton.rxbinding4.view.RxView;
 import com.jakewharton.rxbinding4.widget.RxCompoundButton;
 
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private OrderNotificationController orderNotificationController;
     private MainActivityBinding binding;
     private Observable<Order> incomingOrderObservable;
+    private String readyToHandshakeOrderUUID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +92,26 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null && readyToHandshakeOrderUUID != null) {
+            if (result.getContents() == null) {
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                try {
+                    ordersController.deliveryOrder(readyToHandshakeOrderUUID, result.getContents());
+                    Toast.makeText(this, "Успешно", Toast.LENGTH_LONG).show();
+                } catch (Throwable throwable) {
+                    Toast.makeText(this, "QR код неверен", Toast.LENGTH_LONG).show();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+        readyToHandshakeOrderUUID = null;
+    }
+
     @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
     protected void setupLocation() {
         locationController.setAcceptedOrders(ordersController.getAcceptedOrders());
@@ -101,6 +125,10 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    public void setReadyToHandshakeOrderUUID(String uuid) {
+        readyToHandshakeOrderUUID = uuid;
     }
 
     @Override

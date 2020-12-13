@@ -19,9 +19,14 @@ public interface ServerApi {
 
     @GET("/delivery/accept")
     Completable acceptOrder(@Query("courierUuid") String courierUuid,
-                            @Query("courierUuid") String orderUuid);
+                            @Query("orderUuid") String orderUuid);
 
     @GET("/delivery/deny")
     Completable denyOrder(@Query("courierUuid") String courierUuid,
-                          @Query("courierUuid") String orderUuid);
+                          @Query("orderUuid") String orderUuid);
+
+    @GET("/delivery/handshake")
+    void handshake(@Query("courierUuid") String courierUuid,
+                          @Query("orderUuid") String orderUuid,
+                          @Query("codeUuid") String codeUuid) throws Throwable;
 }
