@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.SupportMapFragment;
@@ -13,12 +14,11 @@ import com.jakewharton.rxbinding4.widget.RxCompoundButton;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import autodispose2.AutoDispose;
 import autodispose2.androidx.lifecycle.AndroidLifecycleScopeProvider;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import kotlin.Unit;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ordersController = new OrdersController("df307a18-1b66-432a-8011-39b68397d000", this);
-        orderResolvingController = new OrderResolvingController();
+        orderResolvingController = new OrderResolvingController(this);
 
         orderNotificationController = new OrderNotificationController(this, this);
         incomingOrderObservable = ordersController.getIncomingOrderObservable();
@@ -79,16 +79,31 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(orders -> {
                     binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
                     locationController.updateAcceptedOrders();
+                    AtomicBoolean geoFencesUpdateNeeded = new AtomicBoolean(false);
+                    orders.forEach(order -> {
+                        if (!orderResolvingController.getOrders().containsKey(order)) {
+                            orderResolvingController.getOrders().put(order, false);
+                            geoFencesUpdateNeeded.set(true);
+                        }
+                    });
+                    if (geoFencesUpdateNeeded.get()) {
+                        MainActivityPermissionsDispatcher.updateGeoFencesWithPermissionCheck(this);
+                    }
                 });
-
-        Completable.timer(10, TimeUnit.SECONDS)
+        OrderResolvingController.getRxGeoFencedOrders()
                 .observeOn(AndroidSchedulers.mainThread())
                 .to(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(() -> {
-                    Toast.makeText(this, "Курьер подошел к клиенту", Toast.LENGTH_LONG).show();
-                    orderResolvingController.getOrders().put(ordersController.getAcceptedOrders().get(0), true);
+                .subscribe(order -> {
+                    Toast.makeText(this, "Курьер подошел к клиенту!", Toast.LENGTH_SHORT).show();
                     binding.backdrop.recyclerView.getAdapter().notifyDataSetChanged();
                 });
+    }
+
+    @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
+    @RequiresPermission(allOf = {ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
+    protected void updateGeoFences() {
+        orderResolvingController.stop(this);
+        orderResolvingController.start(this);
     }
 
     @NeedsPermission({ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION})
