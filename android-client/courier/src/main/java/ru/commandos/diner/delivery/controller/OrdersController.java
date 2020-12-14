@@ -55,6 +55,10 @@ public class OrdersController {
         onResume();
     }
 
+    public void deliveryOrder(String orderUuid, String codeUuid) throws Throwable {
+        serverApi.handshake(courierUuid, orderUuid, codeUuid);
+    }
+
     public boolean getOfflineState() {
         return offlineState.offlineMode;
     }

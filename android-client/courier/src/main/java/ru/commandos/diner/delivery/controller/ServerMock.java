@@ -73,4 +73,23 @@ class ServerMock implements ServerApi {
                 .removeIf(order -> order.getUuid().equals(orderUuid)))
                 .delay(SERVER_DELAY, TimeUnit.SECONDS);
     }
+
+    @Override
+    public void handshake(String courierUuid, String orderUuid, String codeUuid) throws Throwable {
+        if (!codeUuid.equals("65f3621b-1b5d-4951-8729-fb34f5f1cc8e"))
+            throw new Throwable();
+        else {
+            boolean isRemove = false;
+            for (int i = 0; i < orders.size(); i++) {
+                if (orders.get(i).getUuid().equals(orderUuid)) {
+                    orders.remove(i);
+                    isRemove = true;
+                    break;
+                }
+            }
+            if (!isRemove) {
+                throw new Throwable();
+            }
+        }
+    }
 }
